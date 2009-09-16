@@ -14,7 +14,7 @@ S3C6410主要特征：
         2D图形加速器，带BitBlit和rotation。
         3D图形加速器，带4M triangles/s@133MHz。
         AC-97音频编解码接口和PCM串行音频接口。
-        1/2/4bpp调色板或16bpp/24bpp非调色板彩色TFT。
+        1、2、4bpp调色板或16bpp、24bpp非调色板彩色TFT。
         I2S和I2C接口支持。
         专用IrDA端口支持FIR（高速红外）、MIR（中速红外）、SIR（串行红外）。
         可灵活配置的GPIO。
