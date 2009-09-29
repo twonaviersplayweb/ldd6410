@@ -1,0 +1,38 @@
+2005-11-28 15:38  kraxel
+
+	* lirc.sh:
+
+	- add missing "bits 32" to the lircd.conf generator script.
+
+2005-07-27 18:17  kraxel
+
+	* .cvsignore, GNUmakefile, input-events.man, input-kbd.man,
+	  lsinput.man, mk/.cvsignore:
+
+	- added man-pages, contributed by Marcus Better <marcus@better.se>
+
+2005-07-14 14:17  kraxel
+
+	* COPYING:
+
+	- add COPYING file (GPLv2).
+
+2004-04-21 15:55  kraxel
+
+	* GNUmakefile, INSTALL, README, input-events.c, input-recv.c,
+	  input-send.c, input.c, input.h, list.h, lsinput.c, name.sh,
+	  tcp.c, input-kbd.c, linux-input.h, lirc.sh, tcp.h,
+	  mk/Autoconf.mk, mk/Compile.mk, mk/Maintainer.mk, mk/Variables.mk
+	  (utags: start):
+
+	- import sources
+
+2004-04-21 15:55  kraxel
+
+	* GNUmakefile, INSTALL, README, input-events.c, input-recv.c,
+	  input-send.c, input.c, input.h, list.h, lsinput.c, name.sh,
+	  tcp.c, input-kbd.c, linux-input.h, lirc.sh, tcp.h,
+	  mk/Autoconf.mk, mk/Compile.mk, mk/Maintainer.mk, mk/Variables.mk:
+
+	Initial revision
+

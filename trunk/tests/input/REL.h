@@ -1,0 +1,7 @@
+	[ REL_X            ] = "REL_X",
+	[ REL_Y            ] = "REL_Y",
+	[ REL_Z            ] = "REL_Z",
+	[ REL_HWHEEL       ] = "REL_HWHEEL",
+	[ REL_DIAL         ] = "REL_DIAL",
+	[ REL_WHEEL        ] = "REL_WHEEL",
+	[ REL_MISC         ] = "REL_MISC",
