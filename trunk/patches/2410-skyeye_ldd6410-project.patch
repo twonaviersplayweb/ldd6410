@@ -1,0 +1,236 @@
+Index: arch/arm/kernel/head.S
+===================================================================
+--- arch/arm/kernel/head.S	(revision 17)
++++ arch/arm/kernel/head.S	(working copy)
+@@ -78,6 +78,7 @@
+ ENTRY(stext)
+ 	msr	cpsr_c, #PSR_F_BIT | PSR_I_BIT | SVC_MODE @ ensure svc mode
+ 						@ and irqs disabled
++	mov    r1, #0xc1
+ 	mrc	p15, 0, r9, c0, c0		@ get processor id
+ 	bl	__lookup_processor_type		@ r5=procinfo r9=cpuid
+ 	movs	r10, r5				@ invalid processor (r5=0)?
+Index: arch/arm/mach-s3c2410/Makefile.boot
+===================================================================
+--- arch/arm/mach-s3c2410/Makefile.boot	(revision 17)
++++ arch/arm/mach-s3c2410/Makefile.boot	(working copy)
+@@ -1,3 +1,3 @@
+-   zreladdr-y	:= 0x30008000
+-params_phys-y	:= 0x30000100
++   zreladdr-y	:= 0xC0008000
++params_phys-y	:= 0xC0000100
+ 
+Index: arch/arm/mach-s3c2410/include/mach/memory.h
+===================================================================
+--- arch/arm/mach-s3c2410/include/mach/memory.h	(revision 17)
++++ arch/arm/mach-s3c2410/include/mach/memory.h	(working copy)
+@@ -11,6 +11,6 @@
+ #ifndef __ASM_ARCH_MEMORY_H
+ #define __ASM_ARCH_MEMORY_H
+ 
+-#define PHYS_OFFSET	UL(0x30000000)
++#define PHYS_OFFSET	UL(0xC0000000)
+ 
+ #endif
+Index: arch/arm/mach-s3c2410/include/mach/map.h
+===================================================================
+--- arch/arm/mach-s3c2410/include/mach/map.h	(revision 17)
++++ arch/arm/mach-s3c2410/include/mach/map.h	(working copy)
+@@ -75,7 +75,7 @@
+ #define S3C2410_CS3 (0x18000000)
+ #define S3C2410_CS4 (0x20000000)
+ #define S3C2410_CS5 (0x28000000)
+-#define S3C2410_CS6 (0x30000000)
++#define S3C2410_CS6 (0xC0000000)
+ #define S3C2410_CS7 (0x38000000)
+ 
+ #define S3C2410_SDRAM_PA    (S3C2410_CS6)
+Index: arch/arm/mach-s3c2410/mach-smdk2410.c
+===================================================================
+--- arch/arm/mach-s3c2410/mach-smdk2410.c	(revision 17)
++++ arch/arm/mach-s3c2410/mach-smdk2410.c	(working copy)
+@@ -54,10 +54,65 @@
+ 
+ #include <plat/common-smdk.h>
+ 
++#include <mach/regs-lcd.h>
++#include <mach/fb.h>
++
+ static struct map_desc smdk2410_iodesc[] __initdata = {
+-  /* nothing here yet */
++	/* nothing here yet */
++	{
++		.virtual=  0xe0000000,
++		.pfn= __phys_to_pfn(0x19000000),
++		.length= SZ_1M,
++		.type= MT_DEVICE
++	},
+ };
+ 
++#define LCD_WIDTH 320
++#define LCD_HEIGHT 240
++#define LCD_PIXCLOCK 40000
++#define LCD_RIGHT_MARGIN 67
++#define LCD_LEFT_MARGIN 40
++#define LCD_HSYNC_LEN 31
++#define LCD_UPPER_MARGIN 25
++#define LCD_LOWER_MARGIN 5
++#define LCD_VSYNC_LEN 
++
++static struct s3c2410fb_display smdk2410_lcd_cfg __initdata = {
++	.lcdcon5        = S3C2410_LCDCON5_FRM565 |
++					  S3C2410_LCDCON5_INVVLINE |
++		              S3C2410_LCDCON5_INVVFRAME |
++		              S3C2410_LCDCON5_PWREN,
++	.width          = LCD_WIDTH,
++	.height         = LCD_HEIGHT,
++	.xres           = LCD_WIDTH,
++	.yres           = LCD_HEIGHT,
++	.bpp            = 16,
++	.left_margin    = LCD_LEFT_MARGIN + 1,
++	.right_margin   = LCD_RIGHT_MARGIN + 1,
++	.hsync_len      = LCD_HSYNC_LEN + 1,
++	.upper_margin   = LCD_UPPER_MARGIN + 1,
++	.lower_margin   = LCD_LOWER_MARGIN + 1,
++	.vsync_len      = LCD_VSYNC_LEN + 1,
++	.pixclock       = LCD_PIXCLOCK,
++	.type           = S3C2410_LCDCON1_TFT,
++};
++
++static struct s3c2410fb_mach_info s3c2410_lcd_info __initdata = {
++	.displays       = &smdk2410_lcd_cfg,
++	.num_displays   = 1,
++	.default_display = 0,
++	.gpdcon =       0xaa95aaa1,
++	.gpdcon_mask =  0xffc0fff0,
++	.gpdup =        0x0000faff,
++	.gpdup_mask =   0xffffffff,
++	.lpcsel         = 0xf82,
++};
++
++static void __init smdk2410_lcd_init(void)
++{
++    s3c24xx_fb_set_platdata(&s3c2410_lcd_info);
++}
++
+ #define UCON S3C2410_UCON_DEFAULT
+ #define ULCON S3C2410_LCON_CS8 | S3C2410_LCON_PNONE | S3C2410_LCON_STOPB
+ #define UFCON S3C2410_UFCON_RXTRIG8 | S3C2410_UFCON_FIFOMODE
+@@ -105,6 +160,7 @@
+ {
+ 	s3c_i2c0_set_platdata(NULL);
+ 	platform_add_devices(smdk2410_devices, ARRAY_SIZE(smdk2410_devices));
++	smdk2410_lcd_init();
+ 	smdk_machine_init();
+ }
+ 
+Index: drivers/net/cs89x0.c
+===================================================================
+--- drivers/net/cs89x0.c	(revision 9)
++++ drivers/net/cs89x0.c	(working copy)
+@@ -195,6 +195,9 @@
+ 	PBC_BASE_ADDRESS + PBC_CS8900A_IOBASE + 0x300, 0
+ };
+ static unsigned cs8900_irq_map[] = {EXPIO_INT_ENET_INT, 0, 0, 0};
++#elif defined(CONFIG_ARCH_SMDK2410)
++static unsigned int netcard_portlist [] __initdata = { 0xe0000300, 0 };
++static unsigned int cs8900_irq_map[] = { 53, 0, 0, 0 };
+ #else
+ static unsigned int netcard_portlist[] __used __initdata =
+    { 0x300, 0x320, 0x340, 0x360, 0x200, 0x220, 0x240, 0x260, 0x280, 0x2a0, 0x2c0, 0x2e0, 0};
+@@ -320,6 +323,14 @@
+ 	if (!dev)
+ 		return ERR_PTR(-ENODEV);
+ 
++#if defined(CONFIG_ARCH_SMDK2410)
++	static int probed = 0;
++	if (probed == 1)
++		return 0;
++	else
++		probed = 1;
++#endif
++
+ 	sprintf(dev->name, "eth%d", unit);
+ 	netdev_boot_setup_check(dev);
+ 	io = dev->base_addr;
+@@ -387,6 +398,18 @@
+ {
+ 	outw(value, base_addr + (portno << 1));
+ }
++#elif defined(CONFIG_ARCH_SMDK2410)
++static u16
++readword(unsigned long base_addr, int portno)
++{
++	return __raw_readw(base_addr+portno);
++}
++
++static void
++writeword(unsigned long base_addr, int portno,u16 value)
++{
++	__raw_writew(value,base_addr+portno);
++} 
+ #else
+ static u16
+ readword(unsigned long base_addr, int portno)
+@@ -573,6 +596,7 @@
+ 		readreg(dev, 0);
+ #endif
+ 
++#if !defined(CONFIG_ARCH_SMDK2410)
+ 	/* Grab the region so we can find another board if autoIRQ fails. */
+ 	/* WTF is going on here? */
+ 	if (!request_region(ioaddr & ~3, NETCARD_IO_EXTENT, DRV_NAME)) {
+@@ -581,6 +605,7 @@
+ 		retval = -EBUSY;
+ 		goto out1;
+ 	}
++#endif
+ 
+ #ifdef CONFIG_SH_HICOSH4
+ 	/* truely reset the chip */
+@@ -653,7 +678,17 @@
+ 	   the driver will always do *something* instead of complain that
+ 	   adapter_cnf is 0. */
+ 
+-#ifdef CONFIG_SH_HICOSH4
++#if defined(CONFIG_ARCH_SMDK2410)	
++	lp->force=FORCE_RJ45;
++	lp->auto_neg_cnf=IMM_BIT; 
++	dev->dev_addr[0] = 0x00;
++	dev->dev_addr[1] = 0x00;
++	dev->dev_addr[2] = 0xc0;
++	dev->dev_addr[3] = 0xff;
++	dev->dev_addr[4] = 0xee;
++	dev->dev_addr[5] = 0x08;
++	set_mac_address(dev, dev->dev_addr);
++#elif defined(CONFIG_SH_HICOSH4)
+ 	if (1) {
+ 		/* For the HiCO.SH4 board, things are different: we don't
+ 		   have EEPROM, but there is some data in flash, so we go
+@@ -1037,7 +1072,7 @@
+ #if !defined(CONFIG_MACH_MX31ADS)
+ #if !defined(CONFIG_MACH_IXDP2351) && !defined(CONFIG_ARCH_IXDP2X01)
+ 	struct net_local *lp = netdev_priv(dev);
+-	int ioaddr = dev->base_addr;
++	unsigned int ioaddr = dev->base_addr;
+ #endif
+ 	int reset_start_time;
+ 
+@@ -1311,7 +1346,7 @@
+ 	else
+ #endif
+ 	{
+-#ifndef CONFIG_CS89x0_NONISA_IRQ
++#if (!defined(CONFIG_CS89x0_NONISA_IRQ)) && (!defined(CONFIG_ARCH_SMDK2410))
+ 		if (((1 << dev->irq) & lp->irq_map) == 0) {
+ 			printk(KERN_ERR "%s: IRQ %d is not in our map of allowable IRQs, which is %x\n",
+                                dev->name, dev->irq, lp->irq_map);
+@@ -1396,7 +1431,7 @@
+ 	case A_CNF_MEDIA_10B_2: result = lp->adapter_cnf & A_CNF_10B_2; break;
+         default: result = lp->adapter_cnf & (A_CNF_10B_T | A_CNF_AUI | A_CNF_10B_2);
+         }
+-#ifdef CONFIG_ARCH_PNX010X
++#if defined(CONFIG_ARCH_PNX010X) || defined(CONFIG_ARCH_SMDK2410)
+ 	result = A_CNF_10B_T;
+ #endif
+         if (!result) {
