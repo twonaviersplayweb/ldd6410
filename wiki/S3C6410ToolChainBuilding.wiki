@@ -1,5 +1,5 @@
 #labels S3C6410,Toolchain,4.2.2-eabi
-本页讲解如何建立S3C6410的开发环境。
+#讲解如何建立S3C6410的开发环境。
 
 = 一、搭建编译环境 =
 
@@ -161,4 +161,3 @@ CONFIG_EXPORTFS=m
 CONFIG_NFS_ACL_SUPPORT=y
 CONFIG_NFS_COMMON=y
 }}}
-
