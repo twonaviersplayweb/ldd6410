@@ -1,4 +1,4 @@
-#labels skyeye,uboot,linux-2.6.31
+#labels skyeye,u-boot,linux-2.6.31,initrd.img,tftp,nfs
 本页讲解如何使用LDD6410工程的代码在skyeye中运行uboot、2.6.31内核及文件系统。由于目前skyeye还不支持s3c6410，所以我们生成的映像都是s3c2410的。
 支持如何功能:
   * cs8900网卡
@@ -160,6 +160,4 @@
 	   
 
 	   
-
-
 
