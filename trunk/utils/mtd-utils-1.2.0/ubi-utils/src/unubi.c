@@ -901,7 +901,7 @@ unubi_volumes(FILE* fpin, uint32_t *vols, size_t vc, struct args *a)
 		unubi_analyze(&head, first, a->odir_path);
 
 		/* prepare output files */
-		memset(fname, 0, PATH_MAX + 1);
+		memset(fname, 0, PATH_MAX);
 		snprintf(fname, PATH_MAX, "%s/%s", a->odir_path, FN_EH_STAT);
 		fp = fopen(fname, "w");
 		if (fp != NULL) {
