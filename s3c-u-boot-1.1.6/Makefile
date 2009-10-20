@@ -1941,6 +1941,9 @@ smdk6400_config	:	unconfig
 smdk6410_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm s3c64xx smdk6410 samsung s3c6410 
 
+ldd6410_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm s3c64xx ldd6410 samsung s3c6410 
+
 smdk6430_config :       unconfig
 	@$(MKCONFIG) $(@:_config=) arm s3c64xx smdk6430 samsung s3c6430
 
