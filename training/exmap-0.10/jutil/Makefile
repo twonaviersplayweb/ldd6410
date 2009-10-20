@@ -13,7 +13,7 @@ OBJ += $(ETOBJ)
 EXES += egtest
 
 CXX=g++
-CXXFLAGS=-Wall -Werror -g -I.
+CXXFLAGS=-Wall -g -I.
 LD=g++
 LDFLAGS=-lpcre
 
