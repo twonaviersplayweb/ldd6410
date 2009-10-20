@@ -1,6 +1,6 @@
 #include <common.h>
 
-#if defined(CONFIG_SMDK6400) || defined(CONFIG_SMDK6410) || defined(CONFIG_SMDK6430)
+#if defined(CONFIG_SMDK6400) || defined(CONFIG_SMDK6410) || defined(CONFIG_SMDK6430) || defined(CONFIG_LDD6410)
 
 #define CONFIG_SUPPORT_MMC_PLUS
 #define HCLK_OPERATION
@@ -24,6 +24,7 @@
 extern ulong virt_to_phy_smdk6400(ulong addr);
 #elif defined(CONFIG_S3C6410)
 extern ulong virt_to_phy_smdk6410(ulong addr);
+extern ulong virt_to_phy_ldd6410(ulong addr);
 #elif defined(CONFIG_S3C6430)
 extern ulong virt_to_phy_smdk6430(ulong addr);
 #endif

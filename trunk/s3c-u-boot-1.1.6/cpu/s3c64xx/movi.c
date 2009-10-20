@@ -2,7 +2,7 @@
 
 #ifdef CONFIG_MOVINAND
 
-#if defined(CONFIG_SMDK6410)
+#if defined(CONFIG_SMDK6410) || defined(CONFIG_LDD6410)
 #include <s3c6410.h>
 #elif defined(CONFIG_SMDK6430)
 #include <s3c6430.h>

@@ -87,6 +87,7 @@ extern ulong virt_to_phy_smdk2450(ulong addr);
 extern ulong virt_to_phy_smdk6400(ulong addr);
 #elif defined(CONFIG_S3C6410)
 extern ulong virt_to_phy_smdk6410(ulong addr);
+extern ulong virt_to_phy_ldd6410(ulong addr);
 #elif defined(CONFIG_S3C6430)
 extern ulong virt_to_phy_smdk6430(ulong addr);
 #elif defined(CONFIG_S3C2416)
