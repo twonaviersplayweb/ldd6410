@@ -91,7 +91,7 @@ static void clear_local_data(void)
 		init_local_data();
 		return;
 	}
-	
+
 	for (i = 0, vma_data = local_data.vma_data;
 	     i < local_data.num_vmas;
 	     ++i, ++vma_data) {
@@ -130,7 +130,7 @@ static int walk_page_tables(struct mm_struct *mm,
 	pud = pud_offset(pgd, address);
 	if (pud_none(*pud) || unlikely(pud_bad(*pud)))
 		goto out;
-	
+
 	pmd = pmd_offset(pud, address);
 #else
 	pmd = pmd_offset(pgd, address);
@@ -160,11 +160,11 @@ static void save_vma_page_info(struct vm_area_struct *vma,
 	for (pageno = 0;
 	     pageno < vma_data->num_pages;
 	     ++pageno, page_addr += PAGE_SIZE, ptep++) {
-		
+
 		if (walk_page_tables(vma->vm_mm,
 				     page_addr,
 				     ptep) < 0) {
-			
+
 			/* This appears to happen. It looks like if
 			 * high enough pages haven't been touched, the
 			 * pmd doens't yet exist. */
@@ -203,7 +203,7 @@ static int alloc_vmalist_info(struct vm_area_struct *vma_base)
 	for (vma = vma_base, vma_data = local_data.vma_data;
 	     vma != NULL;
 	     vma = vma->vm_next, vma_data++) {
-		
+
 		vma_data->num_pages
 			= (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
 		alloc_size = sizeof(pte_t) * vma_data->num_pages;
@@ -301,17 +301,17 @@ static int show_one_page(pte_t pte,
 		swap_entry = pte_to_swp_entry(pte);
 		cookie = swap_entry.val;
 	}
-	
+
 	len = snprintf (buffer,
 			buflen,
 			"%d %d %lx\n",
 			present,
 			writable,
 			cookie);
-	
+
 	if (len >= buflen)
 		goto ETOOLONG;
-	
+
 	return len;
  ETOOLONG:
 	buffer[0] = '\0';
@@ -323,7 +323,7 @@ static int show_vma_start(struct exmap_vma_data *vma_data,
 			  int buflen)
 {
 	int len;
-	
+
 	len = snprintf (buffer,
 			buflen,
 			"VMA %lx %lu\n",
@@ -392,7 +392,7 @@ int setup_from_pid(pid_t pid)
 	struct task_struct *tsk;
 	int errcode = -EINVAL;
 
-	tsk = find_task_by_pid(pid);
+	tsk = find_task_by_pid_type_ns(PIDTYPE_PID, pid, &init_pid_ns);
 	if (tsk == NULL) {
 		printk (KERN_ALERT
 			"/proc/%s: can't find task for pid %d\n",
@@ -405,7 +405,7 @@ int setup_from_pid(pid_t pid)
 			PROCFS_NAME, pid);
 		goto Exit;
 	}
-	
+
 	mm = get_task_mm(tsk);
 	if (mm == NULL) {
 		printk (KERN_ALERT
@@ -435,7 +435,7 @@ Exit:
 		up_read(&mm->mmap_sem);
 		mmput(mm);
 	}
-	
+
 	return errcode;
 }
 
@@ -467,7 +467,7 @@ static int procfile_write (struct file *file,
 			PROCFS_NAME, pid, errcode);
 		return errcode;
 	}
-	
+
 	return count;
 }
 
@@ -489,7 +489,7 @@ static int procfile_read (char *buffer,
 			PROCFS_NAME);
 		return -EINVAL;
 	}
-	
+
 	ret = exmap_show_next(buffer, buffer_length);
 	if (ret > 0) {
 		*buffer_location = buffer;
@@ -501,26 +501,26 @@ int init_module ()
 {
 	struct proc_dir_entry *exmap_proc_file;
 	printk (KERN_INFO "/proc/%s: insert\n", PROCFS_NAME);
-	
+
 	exmap_proc_file = create_proc_entry (PROCFS_NAME,
 							0644,
 							NULL);
 
 	if (exmap_proc_file == NULL) {
-		remove_proc_entry (PROCFS_NAME, &proc_root);
+		remove_proc_entry (PROCFS_NAME, NULL);
 		printk (KERN_ALERT "/proc/%s: could not initialize\n",
 			PROCFS_NAME);
 		return -ENOMEM;
 	}
-	
+
 	exmap_proc_file->read_proc = procfile_read;
 	exmap_proc_file->write_proc = procfile_write;
 	exmap_proc_file->owner = THIS_MODULE;
-	
+
 	/*     exmap_proc_file->mode         = S_IFREG | S_IRUGO; */
 	/* TODO - this is quite probably a security problem */
 	exmap_proc_file->mode = 0666;
-	
+
 	exmap_proc_file->uid = 0;
 	exmap_proc_file->gid = 0;
 	exmap_proc_file->size = 0;
@@ -532,5 +532,5 @@ int init_module ()
 void cleanup_module ()
 {
 	printk (KERN_INFO "/proc/%s: remove\n", PROCFS_NAME);
-	remove_proc_entry (PROCFS_NAME, &proc_root);
+	remove_proc_entry (PROCFS_NAME, NULL);
 }
