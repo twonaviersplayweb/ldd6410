@@ -11,6 +11,7 @@
 // For getuid/setuid
 #include <unistd.h>
 #include <sys/types.h>
+#include <stdlib.h>
 
 namespace jutil
 {
