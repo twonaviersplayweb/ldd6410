@@ -11,7 +11,7 @@ JUTILDIR=../jutil
 
 EXMAP_OBJ=Exmap.o Range.o Elf.o
 
-CXXFLAGS += -g -Wall -Werror -I$(JUTILDIR)
+CXXFLAGS += -g -Wall -I$(JUTILDIR)
 LDFLAGS += -lpcre -ljutil -L$(JUTILDIR)
 
 GTKCXXFLAGS = `pkg-config --cflags gtkmm-2.4`

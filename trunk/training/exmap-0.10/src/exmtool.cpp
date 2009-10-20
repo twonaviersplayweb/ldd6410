@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <string.h>
 
 using namespace std;
 using namespace Exmap;
