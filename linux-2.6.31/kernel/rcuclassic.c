@@ -48,6 +48,7 @@
 #include <linux/cpu.h>
 #include <linux/mutex.h>
 #include <linux/time.h>
+#include <trace/rcu.h>
 
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 static struct lock_class_key rcu_lock_key;
@@ -98,6 +99,10 @@ void rcu_bh_qsctr_inc(int cpu)
 static int blimit = 10;
 static int qhimark = 10000;
 static int qlowmark = 100;
+
+DEFINE_TRACE(rcu_classic_call_rcu);
+DEFINE_TRACE(rcu_classic_call_rcu_bh);
+DEFINE_TRACE(rcu_classic_callback);
 
 #ifdef CONFIG_SMP
 static void force_quiescent_state(struct rcu_data *rdp,
@@ -283,6 +288,7 @@ void call_rcu(struct rcu_head *head,
 
 	head->func = func;
 	local_irq_save(flags);
+	trace_rcu_classic_call_rcu(head, _RET_IP_);
 	__call_rcu(head, &rcu_ctrlblk, &__get_cpu_var(rcu_data));
 	local_irq_restore(flags);
 }
@@ -311,6 +317,7 @@ void call_rcu_bh(struct rcu_head *head,
 
 	head->func = func;
 	local_irq_save(flags);
+	trace_rcu_classic_call_rcu_bh(head, _RET_IP_);
 	__call_rcu(head, &rcu_bh_ctrlblk, &__get_cpu_var(rcu_bh_data));
 	local_irq_restore(flags);
 }
@@ -356,6 +363,7 @@ static void rcu_do_batch(struct rcu_data *rdp)
 	while (list) {
 		next = list->next;
 		prefetch(next);
+		trace_rcu_classic_callback(list);
 		list->func(list);
 		list = next;
 		if (++count >= rdp->blimit)

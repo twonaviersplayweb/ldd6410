@@ -5,6 +5,7 @@
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/smp.h>
+#include <trace/irq.h>
 
 #include <asm/processor.h>
 #include <asm/mce.h>

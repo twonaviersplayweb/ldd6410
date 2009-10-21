@@ -47,6 +47,8 @@ ret_fast_syscall:
  * Ok, we need to do extra processing, enter the slow path.
  */
 fast_work_pending:
+	tst	r1, #_TIF_KERNEL_TRACE		@ flag can be set asynchronously
+	bne	__sys_trace_return
 	str	r0, [sp, #S_R0+S_OFF]!		@ returned r0
 work_pending:
 	tst	r1, #_TIF_NEED_RESCHED
@@ -91,8 +93,8 @@ ENTRY(ret_from_fork)
 	get_thread_info tsk
 	ldr	r1, [tsk, #TI_FLAGS]		@ check for syscall tracing
 	mov	why, #1
-	tst	r1, #_TIF_SYSCALL_TRACE		@ are we tracing syscalls?
-	beq	ret_slow_syscall
+	tst	r1, #_TIF_SYSCALL_TRACE | _TIF_KERNEL_TRACE
+	beq	ret_slow_syscall		@ are we tracing syscalls?
 	mov	r1, sp
 	mov	r0, #1				@ trace exit [IP = 1]
 	bl	syscall_trace
@@ -268,8 +270,8 @@ ENTRY(vector_swi)
 #endif
 
 	stmdb	sp!, {r4, r5}			@ push fifth and sixth args
-	tst	ip, #_TIF_SYSCALL_TRACE		@ are we tracing syscalls?
-	bne	__sys_trace
+	tst	ip, #_TIF_SYSCALL_TRACE | _TIF_KERNEL_TRACE
+	bne	__sys_trace			@ are we tracing syscalls?
 
 	cmp	scno, #NR_syscalls		@ check upper syscall limit
 	adr	lr, ret_fast_syscall		@ return address

@@ -15,6 +15,7 @@
 #include <linux/stringify.h>
 #include <linux/kobject.h>
 #include <linux/moduleparam.h>
+#include <linux/immediate.h>
 #include <linux/marker.h>
 #include <linux/tracepoint.h>
 #include <asm/local.h>
@@ -325,6 +326,10 @@ struct module
 	/* The command line arguments (may be mangled).  People like
 	   keeping pointers to this stuff */
 	char *args;
+#ifdef USE_IMMEDIATE
+	struct __imv *immediate;
+	unsigned int num_immediate;
+#endif
 #ifdef CONFIG_MARKERS
 	struct marker *markers;
 	unsigned int num_markers;
@@ -526,8 +531,10 @@ int register_module_notifier(struct notifier_block * nb);
 int unregister_module_notifier(struct notifier_block * nb);
 
 extern void print_modules(void);
+extern void list_modules(void *call_data);
 
 extern void module_update_markers(void);
+extern int module_get_iter_markers(struct marker_iter *iter);
 
 extern void module_update_tracepoints(void);
 extern int module_get_iter_tracepoints(struct tracepoint_iter *iter);
@@ -643,6 +650,10 @@ static inline void print_modules(void)
 {
 }
 
+static inline void list_modules(void *call_data)
+{
+}
+
 static inline void module_update_markers(void)
 {
 }
@@ -656,7 +667,25 @@ static inline int module_get_iter_tracepoints(struct tracepoint_iter *iter)
 	return 0;
 }
 
+static inline int module_get_iter_markers(struct marker_iter *iter)
+{
+	return 0;
+}
+
 #endif /* CONFIG_MODULES */
+
+#if defined(CONFIG_MODULES) && defined(USE_IMMEDIATE)
+extern void _module_imv_update(void);
+extern void module_imv_update(void);
+#else
+static inline void _module_imv_update(void)
+{
+}
+
+static inline void module_imv_update(void)
+{
+}
+#endif
 
 struct device_driver;
 #ifdef CONFIG_SYSFS

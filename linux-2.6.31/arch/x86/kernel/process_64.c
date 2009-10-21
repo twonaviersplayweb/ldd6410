@@ -39,6 +39,7 @@
 #include <linux/io.h>
 #include <linux/ftrace.h>
 #include <linux/dmi.h>
+#include <trace/sched.h>
 
 #include <asm/pgtable.h>
 #include <asm/system.h>
@@ -53,7 +54,12 @@
 #include <asm/syscalls.h>
 #include <asm/ds.h>
 
+DEFINE_TRACE(sched_kthread_create);
+
 asmlinkage extern void ret_from_fork(void);
+
+asmlinkage long kernel_thread_asm(int (*fn)(void *), void * arg,
+	unsigned long flags);
 
 DEFINE_PER_CPU(struct task_struct *, current_task) = &init_task;
 EXPORT_PER_CPU_SYMBOL(current_task);
@@ -658,3 +664,10 @@ long sys_arch_prctl(int code, unsigned long addr)
 	return do_arch_prctl(current, code, addr);
 }
 
+asmlinkage int kernel_thread(int (*fn)(void *), void * arg,
+	 unsigned long flags)
+{
+	int pid = kernel_thread_asm(fn, arg, flags);
+	trace_sched_kthread_create(fn, pid);
+	return pid;
+}

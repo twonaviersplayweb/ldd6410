@@ -24,10 +24,13 @@
 #include <linux/kdebug.h>
 #include <linux/kexec.h>
 #include <linux/limits.h>
+#include <trace/trap.h>
 #include <asm/system.h>
 #include <asm/uaccess.h>
 #include <asm/fpu.h>
 #include <asm/kprobes.h>
+
+#include <trace/trap.h>
 
 #ifdef CONFIG_CPU_SH2
 # define TRAP_RESERVED_INST	4
@@ -43,6 +46,9 @@
 #define TRAP_RESERVED_INST	12
 #define TRAP_ILLEGAL_SLOT_INST	13
 #endif
+
+DEFINE_TRACE(trap_entry);
+DEFINE_TRACE(trap_exit);
 
 static void dump_mem(const char *str, unsigned long bottom, unsigned long top)
 {
@@ -531,6 +537,8 @@ asmlinkage void do_address_error(struct pt_regs *regs,
 	error_code = lookup_exception_vector();
 #endif
 
+	trace_trap_entry(regs, error_code >> 5);
+
 	oldfs = get_fs();
 
 	if (user_mode(regs)) {
@@ -558,8 +566,10 @@ asmlinkage void do_address_error(struct pt_regs *regs,
 					      &user_mem_access);
 		set_fs(oldfs);
 
-		if (tmp==0)
+		if (!tmp) {
+			trace_trap_exit();
 			return; /* sorted */
+		}
 uspace_segv:
 		printk(KERN_NOTICE "Sending SIGBUS to \"%s\" due to unaligned "
 		       "access (PC %lx PR %lx)\n", current->comm, regs->pc,
@@ -587,6 +597,7 @@ uspace_segv:
 		handle_unaligned_access(instruction, regs, &user_mem_access);
 		set_fs(oldfs);
 	}
+	trace_trap_exit();
 }
 
 #ifdef CONFIG_SH_DSP

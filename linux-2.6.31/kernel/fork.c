@@ -83,6 +83,7 @@ int max_threads;		/* tunable limit on nr_threads */
 DEFINE_PER_CPU(unsigned long, process_counts) = 0;
 
 __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
+EXPORT_SYMBOL(tasklist_lock);
 
 int nr_processes(void)
 {
@@ -1012,6 +1013,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	p->rcu_read_lock_nesting = 0;
 	p->rcu_flipctr_idx = 0;
 #endif /* #ifdef CONFIG_PREEMPT_RCU */
+	INIT_RCU_HEAD(&p->rcu);
 	p->vfork_done = NULL;
 	spin_lock_init(&p->alloc_lock);
 
@@ -1197,6 +1199,15 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	if (unlikely(!cpu_isset(task_cpu(p), p->cpus_allowed) ||
 			!cpu_online(task_cpu(p))))
 		set_task_cpu(p, smp_processor_id());
+
+	/*
+	 * The state of the parent's TIF_KTRACE flag may have changed
+	 * since it was copied in dup_task_struct() so we re-copy it here.
+	 */
+	if (test_thread_flag(TIF_KERNEL_TRACE))
+		set_tsk_thread_flag(p, TIF_KERNEL_TRACE);
+	else
+		clear_tsk_thread_flag(p, TIF_KERNEL_TRACE);
 
 	/* CLONE_PARENT re-uses the old parent */
 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {

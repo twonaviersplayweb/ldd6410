@@ -65,6 +65,10 @@
 #define MUTEX_DEBUG_INIT	0x11
 #define MUTEX_DEBUG_FREE	0x22
 
+/********** Priority-Sifting Reader-Writer Locks **********/
+#define PSRWLOCK_DEBUG_INIT	0x33
+#define PSRWLOCK_DEBUG_FREE	0x44
+
 /********** security/ **********/
 #define KEY_DESTROY		0xbd
 

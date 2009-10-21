@@ -16,10 +16,16 @@
 #include <linux/hardirq.h>
 #include <linux/kprobes.h>
 #include <linux/perf_counter.h>
+#include <trace/fault.h>
 #include <asm/io_trapped.h>
 #include <asm/system.h>
 #include <asm/mmu_context.h>
 #include <asm/tlbflush.h>
+
+DEFINE_TRACE(page_fault_entry);
+DEFINE_TRACE(page_fault_exit);
+DEFINE_TRACE(page_fault_nosem_entry);
+DEFINE_TRACE(page_fault_nosem_exit);
 
 static inline int notify_page_fault(struct pt_regs *regs, int trap)
 {
@@ -152,7 +158,14 @@ good_area:
 	 * the fault.
 	 */
 survive:
+	trace_page_fault_entry(regs,
+		({
+			unsigned long trapnr;
+			asm volatile("stc	r2_bank,%0": "=r" (trapnr));
+			trapnr;
+		}) >> 5, mm, vma, address, writeaccess);
 	fault = handle_mm_fault(mm, vma, address, writeaccess ? FAULT_FLAG_WRITE : 0);
+	trace_page_fault_exit(fault);
 	if (unlikely(fault & VM_FAULT_ERROR)) {
 		if (fault & VM_FAULT_OOM)
 			goto out_of_memory;
@@ -182,11 +195,18 @@ bad_area:
 
 bad_area_nosemaphore:
 	if (user_mode(regs)) {
+		trace_page_fault_nosem_entry(regs,
+		({
+			unsigned long trapnr;
+			asm volatile("stc	r2_bank,%0": "=r" (trapnr));
+			trapnr;
+		}) >> 5, address);
 		info.si_signo = SIGSEGV;
 		info.si_errno = 0;
 		info.si_code = si_code;
 		info.si_addr = (void *) address;
 		force_sig_info(SIGSEGV, &info, tsk);
+		trace_page_fault_nosem_exit();
 		return;
 	}
 
@@ -282,7 +302,10 @@ asmlinkage int __kprobes __do_page_fault(struct pt_regs *regs,
 	pte_t *pte;
 	pte_t entry;
 	int ret = 1;
+	int irqvec;
 
+	irqvec = lookup_exception_vector();
+	trace_page_fault_nosem_entry(regs, irqvec, address);
 	/*
 	 * We don't take page faults for P1, P2, and parts of P4, these
 	 * are always mapped, whether it be due to legacy behaviour in
@@ -327,5 +350,6 @@ asmlinkage int __kprobes __do_page_fault(struct pt_regs *regs,
 
 	ret = 0;
 out:
+	trace_page_fault_nosem_exit();
 	return ret;
 }

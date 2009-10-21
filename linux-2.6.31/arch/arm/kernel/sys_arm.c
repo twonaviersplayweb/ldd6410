@@ -28,6 +28,9 @@
 #include <linux/utsname.h>
 #include <linux/ipc.h>
 #include <linux/uaccess.h>
+#include <trace/ipc.h>
+
+DEFINE_TRACE(ipc_call);
 
 extern unsigned long do_mremap(unsigned long addr, unsigned long old_len,
 			       unsigned long new_len, unsigned long flags,
@@ -142,6 +145,8 @@ asmlinkage int sys_ipc(uint call, int first, int second, int third,
 
 	version = call >> 16; /* hack for backward compatibility */
 	call &= 0xffff;
+
+	trace_ipc_call(call, first);
 
 	switch (call) {
 	case SEMOP:

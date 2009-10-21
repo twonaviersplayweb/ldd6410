@@ -31,6 +31,7 @@
 #include <linux/mm.h>
 #include <linux/smp.h>
 #include <linux/io.h>
+#include <trace/trap.h>
 
 #ifdef CONFIG_EISA
 #include <linux/ioport.h>
@@ -65,6 +66,7 @@
 #include <asm/processor-flags.h>
 #include <asm/setup.h>
 #include <asm/traps.h>
+#include <asm/unistd.h>
 
 asmlinkage int system_call(void);
 
@@ -78,10 +80,20 @@ char ignore_fpu_irq;
  */
 gate_desc idt_table[256]
 	__attribute__((__section__(".data.idt"))) = { { { { 0, 0 } } }, };
+
+extern unsigned long sys_call_table[];
+extern unsigned long syscall_table_size;
+
 #endif
 
 DECLARE_BITMAP(used_vectors, NR_VECTORS);
 EXPORT_SYMBOL_GPL(used_vectors);
+
+/*
+ * Also used in arch/x86/mm/fault.c.
+ */
+DEFINE_TRACE(trap_entry);
+DEFINE_TRACE(trap_exit);
 
 static int ignore_nmis;
 
@@ -125,6 +137,8 @@ do_trap(int trapnr, int signr, char *str, struct pt_regs *regs,
 	long error_code, siginfo_t *info)
 {
 	struct task_struct *tsk = current;
+
+	trace_trap_entry(regs, trapnr);
 
 #ifdef CONFIG_X86_32
 	if (regs->flags & X86_VM_MASK) {
@@ -172,7 +186,7 @@ trap_signal:
 		force_sig_info(signr, info, tsk);
 	else
 		force_sig(signr, tsk);
-	return;
+	goto end;
 
 kernel_trap:
 	if (!fixup_exception(regs)) {
@@ -180,15 +194,17 @@ kernel_trap:
 		tsk->thread.trap_no = trapnr;
 		die(str, regs, error_code);
 	}
-	return;
+	goto end;
 
 #ifdef CONFIG_X86_32
 vm86_trap:
 	if (handle_vm86_trap((struct kernel_vm86_regs *) regs,
 						error_code, trapnr))
 		goto trap_signal;
-	return;
+	goto end;
 #endif
+end:
+	trace_trap_exit();
 }
 
 #define DO_ERROR(trapnr, signr, str, name)				\
@@ -289,7 +305,9 @@ do_general_protection(struct pt_regs *regs, long error_code)
 		printk("\n");
 	}
 
+	trace_trap_entry(regs, 13);
 	force_sig(SIGSEGV, tsk);
+	trace_trap_exit();
 	return;
 
 #ifdef CONFIG_X86_32
@@ -399,27 +417,29 @@ static notrace __kprobes void default_do_nmi(struct pt_regs *regs)
 	if (!cpu)
 		reason = get_nmi_reason();
 
+	trace_trap_entry(regs, 2);
+
 	if (!(reason & 0xc0)) {
 		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 2, SIGINT)
 								== NOTIFY_STOP)
-			return;
+			goto end;
 #ifdef CONFIG_X86_LOCAL_APIC
 		/*
 		 * Ok, so this is none of the documented NMI sources,
 		 * so it must be the NMI watchdog.
 		 */
 		if (nmi_watchdog_tick(regs, reason))
-			return;
+			goto end;
 		if (!do_nmi_callback(regs, cpu))
 			unknown_nmi_error(reason, regs);
 #else
 		unknown_nmi_error(reason, regs);
 #endif
 
-		return;
+		goto end;
 	}
 	if (notify_die(DIE_NMI, "nmi", regs, reason, 2, SIGINT) == NOTIFY_STOP)
-		return;
+		goto end;
 
 	/* AK: following checks seem to be broken on modern chipsets. FIXME */
 	if (reason & 0x80)
@@ -433,6 +453,8 @@ static notrace __kprobes void default_do_nmi(struct pt_regs *regs)
 	 */
 	reassert_nmi();
 #endif
+end:
+	trace_trap_exit();
 }
 
 dotraplinkage notrace __kprobes void
@@ -463,7 +485,7 @@ void restart_nmi(void)
 /* May run on IST stack. */
 dotraplinkage void __kprobes do_int3(struct pt_regs *regs, long error_code)
 {
-#ifdef CONFIG_KPROBES
+#if (defined(CONFIG_KPROBES) || defined(USE_IMMEDIATE))
 	if (notify_die(DIE_INT3, "int3", regs, error_code, 3, SIGTRAP)
 			== NOTIFY_STOP)
 		return;
@@ -579,7 +601,9 @@ dotraplinkage void __kprobes do_debug(struct pt_regs *regs, long error_code)
 
 	si_code = get_si_code(condition);
 	/* Ok, finally something we can handle */
+	trace_trap_entry(regs, 1);
 	send_sigtrap(tsk, regs, error_code, si_code);
+	trace_trap_exit();
 
 	/*
 	 * Disable additional traps. They'll be re-enabled when
@@ -594,7 +618,9 @@ clear_dr7:
 debug_vm86:
 	/* reenable preemption: handle_vm86_trap() might sleep */
 	dec_preempt_count();
+	trace_trap_entry(regs, 1);
 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
+	trace_trap_exit();
 	conditional_cli(regs);
 	return;
 #endif
@@ -618,6 +644,22 @@ static int kernel_math_error(struct pt_regs *regs, const char *str, int trapnr)
 	die(str, regs, 0);
 	return 0;
 }
+#endif
+
+#ifdef CONFIG_X86_32
+void ltt_dump_sys_call_table(void *call_data)
+{
+	int i;
+	char namebuf[KSYM_NAME_LEN];
+
+	for (i = 0; i < NR_syscalls; i++) {
+		sprint_symbol(namebuf, sys_call_table[i]);
+		__trace_mark(0, syscall_state, sys_call_table, call_data,
+			"id %d address %p symbol %s",
+			i, (void*)sys_call_table[i], namebuf);
+	}
+}
+EXPORT_SYMBOL_GPL(ltt_dump_sys_call_table);
 #endif
 
 /*
@@ -779,11 +821,13 @@ do_simd_coprocessor_error(struct pt_regs *regs, long error_code)
 dotraplinkage void
 do_spurious_interrupt_bug(struct pt_regs *regs, long error_code)
 {
+	trace_trap_entry(regs, 16);
 	conditional_sti(regs);
 #if 0
 	/* No need to warn about this any longer. */
 	printk(KERN_INFO "Ignoring P6 Local APIC Spurious Interrupt Bug...\n");
 #endif
+	trace_trap_exit();
 }
 
 #ifdef CONFIG_X86_32
@@ -814,6 +858,21 @@ asmlinkage void __attribute__((weak)) smp_thermal_interrupt(void)
 asmlinkage void __attribute__((weak)) smp_threshold_interrupt(void)
 {
 }
+
+void ltt_dump_idt_table(void *call_data)
+{
+	int i;
+	char namebuf[KSYM_NAME_LEN];
+
+	for (i = 0; i < IDT_ENTRIES; i++) {
+		unsigned long address = gate_offset(idt_table[i]);
+		sprint_symbol(namebuf, address);
+		__trace_mark(0, irq_state, idt_table, call_data,
+			"irq %d address %p symbol %s",
+			i, (void *)address, namebuf);
+	}
+}
+EXPORT_SYMBOL_GPL(ltt_dump_idt_table);
 
 /*
  * 'math_state_restore()' saves the current math information in the

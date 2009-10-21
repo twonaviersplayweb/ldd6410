@@ -56,6 +56,7 @@
 #include <linux/delay.h>
 #include <linux/cpumask.h>
 #include <linux/rcupreempt_trace.h>
+#include <trace/rcu.h>
 #include <asm/byteorder.h>
 
 /*
@@ -266,6 +267,10 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(enum rcu_mb_flag_values, rcu_mb_flag)
 #define RCU_TRACE_RDP(f, rdp) RCU_TRACE(f, &((rdp)->trace));
 
 #define RCU_SCHED_BATCH_TIME (HZ / 50)
+
+DEFINE_TRACE(rcu_preempt_callback);
+DEFINE_TRACE(rcu_preempt_call_rcu);
+DEFINE_TRACE(rcu_preempt_call_rcu_sched);
 
 /*
  * Return the number of RCU batches processed thus far.  Useful
@@ -1151,6 +1156,7 @@ static void rcu_process_callbacks(struct softirq_action *unused)
 	spin_unlock_irqrestore(&rdp->lock, flags);
 	while (list) {
 		next = list->next;
+		trace_rcu_preempt_callback(list);
 		list->func(list);
 		list = next;
 		RCU_TRACE_ME(rcupreempt_trace_invoke);
@@ -1165,6 +1171,7 @@ void call_rcu(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
 	head->func = func;
 	head->next = NULL;
 	local_irq_save(flags);
+	trace_rcu_preempt_call_rcu(head, _RET_IP_);
 	rdp = RCU_DATA_ME();
 	spin_lock(&rdp->lock);
 	__rcu_advance_callbacks(rdp);
@@ -1184,6 +1191,7 @@ void call_rcu_sched(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
 	head->func = func;
 	head->next = NULL;
 	local_irq_save(flags);
+	trace_rcu_preempt_call_rcu_sched(head, _RET_IP_);
 	rdp = RCU_DATA_ME();
 	spin_lock(&rdp->lock);
 	*rdp->nextschedtail = head;

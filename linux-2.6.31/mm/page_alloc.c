@@ -48,6 +48,7 @@
 #include <linux/page_cgroup.h>
 #include <linux/debugobjects.h>
 #include <linux/kmemleak.h>
+#include <trace/page_alloc.h>
 
 #include <asm/tlbflush.h>
 #include <asm/div64.h>
@@ -78,6 +79,9 @@ gfp_t gfp_allowed_mask __read_mostly = GFP_BOOT_MASK;
 #ifdef CONFIG_HUGETLB_PAGE_SIZE_VARIABLE
 int pageblock_order __read_mostly;
 #endif
+
+DEFINE_TRACE(page_alloc);
+DEFINE_TRACE(page_free);
 
 static void __free_pages_ok(struct page *page, unsigned int order);
 
@@ -561,6 +565,8 @@ static void __free_pages_ok(struct page *page, unsigned int order)
 
 	kmemcheck_free_shadow(page, order);
 
+	trace_page_free(page, order);
+
 	for (i = 0 ; i < (1 << order) ; ++i)
 		bad += free_pages_check(page + i);
 	if (bad)
@@ -1029,6 +1035,8 @@ static void free_hot_cold_page(struct page *page, int cold)
 	int wasMlocked = TestClearPageMlocked(page);
 
 	kmemcheck_free_shadow(page, 0);
+
+	trace_page_free(page, 0);
 
 	if (PageAnon(page))
 		page->mapping = NULL;
@@ -1858,6 +1866,7 @@ nopage:
 	}
 	return page;
 got_pg:
+	trace_page_alloc(page, order);
 	if (kmemcheck_enabled)
 		kmemcheck_pagealloc_alloc(page, order, gfp_mask);
 	return page;

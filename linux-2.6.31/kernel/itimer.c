@@ -12,8 +12,12 @@
 #include <linux/time.h>
 #include <linux/posix-timers.h>
 #include <linux/hrtimer.h>
+#include <trace/timer.h>
 
 #include <asm/uaccess.h>
+
+DEFINE_TRACE(timer_itimer_expired);
+DEFINE_TRACE(timer_itimer_set);
 
 /**
  * itimer_get_remtime - get remaining time for the timer
@@ -123,6 +127,8 @@ enum hrtimer_restart it_real_fn(struct hrtimer *timer)
 	struct signal_struct *sig =
 		container_of(timer, struct signal_struct, real_timer);
 
+	trace_timer_itimer_expired(sig);
+
 	kill_pid_info(SIGALRM, SEND_SIG_PRIV, sig->leader_pid);
 
 	return HRTIMER_NORESTART;
@@ -147,6 +153,8 @@ int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue)
 	if (!timeval_valid(&value->it_value) ||
 	    !timeval_valid(&value->it_interval))
 		return -EINVAL;
+
+	trace_timer_itimer_set(which, value);
 
 	switch (which) {
 	case ITIMER_REAL:
