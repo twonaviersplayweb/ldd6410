@@ -1,0 +1,107 @@
+<html>
+<body>
+<center><big><big>LTTV & LTTng roadmap<small><small></center>
+<br>
+<br>
+Here are the roadmaps for the LTTV and LTTng development. I use a priority indice
+for the TODO items :<br>
+(1) : very high priority<br>
+(10): lowest priority<br>
+<br>
+<br>
+Dependencies are written between brackets [ ].<br>
+The # symbol marks who is currently working on the item.<br>
+The % symbol marks who is interested in the realisation of the item.<br>
+<br>
+<br>
+<big>LTT Next Generation Roadmap<small><br>
+<br>
+* TODO<br>
+(1) Get lttng ascii dump to work.<br>
+	# <A HREF="mailto:Lai Jiangshan <laijs@cn.fujitsu.com>">Lai Jiangshan</A><br>
+- Create periodical buffer flush per-cpu timer for data streaming.<br>
+	# <A HREF="mailto:Mathieu Desnoyers <compudj@krystal.dyndns.org>">Mathieu Desnoyers</A><br>
+- Modify LTTng/lttd/lttv to support variable-sized buffers.<br>
+	# <A HREF="mailto:Mathieu Desnoyers <compudj@krystal.dyndns.org>">Mathieu Desnoyers</A><br>
+(1) Support CPUs with scalable frequency.<br>
+(1) Post core set of patches to LKML for mainlining.<br>
+(2) Create 3rd generation of userspace tracing.<br>
+(3) Bring stack dump in sync with new lttng.<br>
+(4) Dump mounts. (to fix)<br>
+(4) Add Xen support. (Trace buffer desallocation needs to be fixed)<br>
+(4) integrate NPTL instrumentation (see
+<A HREF="http://nptltracetool.sourceforge.net/">PTT</A>).<br>
+(4) Probe calibration kernel module.<br>
+(4) Make page faults detect nested fault without nesting 4 times in the page
+fault handler. (or use vmalloc_sync_all at each tracing module load)<br>
+(5) Add boot time tracing support.<br>
+(5) Integrate LTTng and lttd with LKCD.<br>
+	# <A HREF="mailto:Lai Jiangshan <laijs@cn.fujitsu.com>>">Lai Jiangshan</A><br>
+(7) Integrate periodical dump of perfctr hardware counters.<br>
+(8) Integrate SystemTAP logging with LTTng.<br>
+(8) Integrate periodical dump of SystemTAP computed information.<br>
+(9) Add support for setjmp/longjmp and jump tables instrumentation to
+ltt-instrument-functions.<br>
+(3) port LTTng to :<br>
+ARM OMAP3<BR>
+% Nokia<BR>
+<br>
+<br>
+<big>LTTV Roadmap<small><br>
+<br>
+* TODO<br>
+(3) Add cluster support.<br>
+(4) Statistics per time window.<br>
+(4) Add Xen per physical CPU view.<br>
+(4) Add Xen per vcpu view.<br>
+(4) Disable plugins when threshold reached (i.e. too much process in control
+flow view). Draw, and, when the threshold is reached, stop drawing. The global
+statistics view can inhibit showing the per process stats.<br>
+(4) Add a visual artifact : PID 0 could be named swapper instead of UNNAMED for
+cpus > 0.<br>
+(4) Add event specific fields support to filter.<br>
+(4) Add a periodic event interval view. (useful to verify event periodicity)<br>
+(4) create a graphical per cpu activity view.<br>
+(4) Filter by target process.<br>
+(4) Compensate for time spent in probes in LTTV analysis.<br>
+(4) Add CPU, network, disk, memory usage histogram. [Per interval statistics]<br>
+(4) Add sort by process priority in the control flow view (must also instrument
+priority information of the processes).<br>
+% Airbus<br>
+(5) Add Python scripting hooks.<br>
+(5) Add GUI interface to take an hybrid trace.<br>
+(5) Automatically detect traces with too much processes and disable faulty operations.<br>
+(5) Event sequence detector (inspired from regular expressions).<br>
+(7) Create a hardware counter viewer (low cost rate counters : L1 cache miss,
+page faults, interrupts...). This will be a generalisation of the event rate
+view into a view of the evolution of a user definable event field.<br>
+<br>
+* TO FIX<br>
+(10) Add cancel button to LTTV filter GUI window.<br>
+(10) Sometimes, in the control flow view, a process with 0 creation time is
+created in addition to the real process itself. Seems to be caused by end of
+process life.<br>
+(10) Statistics do not take in account the time spent in the mode present at
+the beginning of the trace. Example : real time spent in system call on behalf
+of process 0.<br>
+<br>
+<br>
+<br>
+* TODO (low priority)<br>
+enhance RPM packages for lttng kernel<br>
+Export buffers with time constraint for "live" visualisation. Use
+ltt_force_switch periodically from a timer to insure slow channels do not
+interfere with viewing.<br>
+Have an optional round-robin mode to write information into multiple channels
+from the same source.<br>
+<br>
+* Need to be discussed<br>
+Drop ltt-module-register and ltt-module-unregister, use exported variables.<br>
+drop ltt_filter_control, use functions pointers instead.<br>
+Remove ltt-base.c.<br>
+<br>
+Mathieu Desnoyers<br>
+
+
+</body>
+</html>

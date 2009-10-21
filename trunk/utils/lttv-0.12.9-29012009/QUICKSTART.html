@@ -1,0 +1,620 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Linux Trace Toolkit Next Generation Manual</title>
+</head>
+  <body>
+
+<h1>Linux Trace Toolkit Next Generation Manual</h1>
+
+Author : Mathieu Desnoyers, September 2005<br>
+Last update : January 21st, 2009<br>
+(originally known as the LTTng QUICKSTART guide)
+
+<h2>Table of Contents</h2>
+
+<ul>
+<li><a href="#intro" name="TOCintro">Introduction</a></li>
+<ul>
+<li><a href="#arch" name="TOCarch">Supported architectures</a></li>
+</ul>
+
+<li><a href="#section1" name="TOCsection1">Installing LTTng and LTTV from
+sources</a></li>
+<ul>
+<li><a href="#prerequisites" name="TOCprerequisites">Prerequisistes</li>
+<li><a href="#getlttng" name="TOCgetlttng">Getting the LTTng packages</li>
+<li><a href="#getlttngsrc" name="TOCgetlttngsrc">Getting the LTTng kernel sources</li>
+<li><a href="#installlttng" name="TOCinstalllttng">Installing a LTTng kernel</li>
+<li><a href="#editconfig" name="TOCeditconfig">Editing the system wide
+configuration</a>
+<li><a href="#getlttctl" name="TOCgetlttctl">Getting and installing the
+ltt-control package</li>
+<li><a href="#userspacetracing" name="TOCuserspacetracing">Userspace Tracing</li>
+<li><a href="#getlttv" name="TOCgetlttv">Getting and installing the LTTV package</ul>
+
+<li><a href="#section2" name="TOCsection2">Using LTTng and LTTV</a></li>
+<ul>
+<li><a href="#uselttvgui" name="TOCuselttvgui">Use graphical LTTV to control
+tracing and analyse traces</a></li>
+<li><a href="#uselttngtext" name="TOCuselttngtext">Use text mode LTTng to
+control tracing</a></li>
+<li><a href="#uselttvtext" name="TOCuselttvtext">Use text mode LTTV</a></li>
+<li><a href="#hybrid" name="TOChybrid">Tracing in "Hybrid" mode</a></li>
+<li><a href="#flight" name="TOCflight">Tracing in flight recorder mode</a></li>
+</ul>
+
+<li><a href="#section3" name="TOCsection3">Adding kernel and user-space
+instrumentation</a>
+<ul>
+<li><a href="#kerneltp" name="TOCkerneltp">Adding kernel instrumentation</a></li>
+<li><a href="#usertp" name="TOCusertp">Adding userspace instrumentation</a></li>
+</ul>
+
+<li><a href="#section4" name="TOCsection4">Creating Debian and RPM packages
+from LTTV</a></li>
+<ul>
+<li><a href="#pkgdebian" name="TOCpkgdebian">Create custom LTTV Debian
+<li><a href="#pkglttng" name="TOCpkglttng">Create custom LTTng packages</a></li>
+</ul>
+
+<li><a href="#section5" name="TOCsection5">Examples of LTTng use in the
+field</a></li>
+
+</ul>
+
+<hr />
+
+<h2><a href="#TOCintro" name="intro">Introduction</a></h2>
+<p>
+This document is made of five parts : the first one explains how
+to install LTTng and LTTV from sources, the second one describes the steps
+to follow to trace a system and view it. The third part explains
+briefly how to add a new trace point to the kernel and to user space
+applications. The fourth part explains how to create Debian or RPM
+packages from the LTTng and LTTV sources. The fifth and last part describes use
+of LTTng in the field.
+<p>
+These operations are made for installing the LTTng 0.86 tracer on a linux 2.6.X
+kernel. You will also find instructions for installation of LTTV 0.12.x : the
+Linux Trace Toolkit Viewer. 
+To see the list of compatibilities between LTTng, ltt-control, LTTV, please
+refer to :
+<a
+href="http://ltt.polymtl.ca/svn/trunk/lttv/doc/developer/lttng-lttv-compatibility.html">LTTng+LTTV versions compatibility</a>
+
+The ongoing work had the Linux Kernel Markers integrated in the mainline Linux
+kernel since Linux 2.6.24 and the Tracepoints since 2.6.28. In its current
+state, the lttng patchset is necessary to have the trace clocksource, the
+instrumentation and the LTTng high-speed data extraction mechanism added to the
+kernel.
+
+<br>
+<br>
+<h3><a href="#TOCarch" name="arch">Supported architectures</a></h3>
+<br>
+LTTng :<br>
+<br>
+<li> x86 32/64 bits
+<li> PowerPC 32 and 64 bits
+<li> ARM (with limited timestamping precision, e.g. 1HZ. Need
+architecture-specific support for better precision)
+<li> MIPS
+<li> sh (partial architecture-specific instrumentation)
+<li> sparc64 (partial architecture-specific instrumentation)
+<li> s390 (partial architecture-specific instrumentation)
+<li> Other architectures supported without architecture-specific instrumentation
+and with low-resolution timestamps.<br>
+<br>
+<br>
+LTTV :<br>
+<br>
+<li> Intel 32/64 bits
+<li> PowerPC 32 and 64 bits
+<li> Possibly others. Takes care of endianness and type size difference between
+the LTTng traces and the LTTV analysis tool.
+
+<hr />
+
+
+<h2><a href="#TOCsection1" name="section1">Installation from sources</a></h2>
+<p>
+
+<h3><a href="#TOCprerequisites" name="prerequisites">Prerequisites</a></h3>
+<ul>
+<p>
+Tools needed to follow the package download steps :
+
+<li>wget
+<li>bzip2
+<li>gzip
+<li>tar
+
+<p>
+You have to install the standard development libraries and programs necessary
+to compile a kernel :
+
+<PRE>
+(from Documentation/Changes in the Linux kernel tree)
+Gnu C                2.95.3                # gcc --version
+Gnu make             3.79.1                # make --version
+binutils             2.12                  # ld -v
+util-linux           2.10o                 # fdformat --version
+module-init-tools    0.9.10                # depmod -V
+</PRE>
+
+<p>
+You might also want to have libncurses5 to have the text mode kernel
+configuration menu, but there are alternatives.
+
+<p>
+Prerequisites for LTTV 0.x.x installation are :
+
+<PRE>
+gcc 3.2 or better
+gtk 2.4 or better development libraries
+  (Debian : libgtk2.0, libgtk2.0-dev)
+  (Fedora : gtk2, gtk2-devel)
+  note : For Fedora users : this might require at least core 3 from Fedora,
+  or you might have to compile your own GTK2 library.
+glib 2.4 or better development libraries
+  (Debian : libglib2.0-0, libglib2.0-dev)
+  (Fedora : glib2, glib2-devel)
+libpopt development libraries
+  (Debian : libpopt0, libpopt-dev)
+  (Fedora : popt)
+libpango development libraries
+  (Debian : libpango1.0, libpango1.0-dev)
+  (Fedora : pango, pango-devel)
+libc6 development librairies 
+  (Debian : libc6, libc6-dev)
+  (Fedora : glibc, glibc)
+</PRE>
+</ul>
+
+<li>Reminder</li>
+
+<p>
+See the list of compatibilities between LTTng, ltt-control and LTTV at :
+<a
+href="http://ltt.polymtl.ca/svn/trunk/lttv/doc/developer/lttng-lttv-compatibility.html">LTTng+LTTV
+versions compatibility</a>.
+
+
+<h3><a href="#TOCgetlttng" name="getlttng">Getting the LTTng packages</a></h3>
+
+<PRE>
+su -
+mkdir /usr/src/lttng
+cd /usr/src/lttng
+(see http://ltt.polymtl.ca/lttng for package listing)
+wget http://ltt.polymtl.ca/lttng/patch-2.6.X-lttng-0.x.xx.tar.bz2
+bzip2 -cd patch-2.6.X-lttng-0.x.xx.tar.bz2 | tar xvof -
+</PRE>
+
+
+<h3><a href="#TOCgetlttngsrc" name="getlttngsrc">Getting LTTng kernel sources</a></h3>
+
+<PRE>
+su -
+cd /usr/src
+wget http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.X.tar.bz2
+bzip2 -cd linux-2.6.X.tar.bz2 | tar xvof -
+cd linux-2.6.X
+- For LTTng 0.9.4- cat /usr/src/lttng/patch*-2.6.X-lttng-0.x.xx* | patch -p1
+- For LTTng 0.9.5+ apply the patches in the order specified in the series file,
+  or use quilt
+cd ..
+mv linux-2.6.X linux-2.6.X-lttng-0.x.xx
+</PRE>
+
+
+<h3><a href="#TOCinstalllttng" name="installlttng">Installing a LTTng kernel</a></h3>
+
+<PRE>
+su -
+cd /usr/src/linux-2.6.X-lttng-0.x.xx
+make menuconfig (or make xconfig or make config)
+    Select the < Help > button if you are not familiar with kernel
+    configuration.
+    Items preceded by [*] means they has to be built into the kernel.
+    Items preceded by [M] means they has to be built as modules.
+    Items preceded by [ ] means they should be removed.
+  go to the "General setup" section
+    Select the following options :
+    [*] Prompt for development and/or incomplete code/drivers
+    [*] Activate markers
+    [*] Activate userspace markers ABI (experimental, optional)
+    [*] Immediate value optimization (optional)
+    [*] Linux Trace Toolkit Next Generation (LTTng) --->
+    <M> or <*> Compile lttng tracing probes
+    <M> or <*> Linux Trace Toolkit High-speed Lockless Data Relay
+    <M> or <*> Linux Trace Toolkit Lock-Protected Data Relay
+    <M> or <*> Linux Trace Toolkit Serializer
+    <M> or <*>   Linux Trace Toolkit Marker Control
+    <M> or <*>     Linux Trace Toolkit Tracer
+    [*] Align Linux Trace Toolkit Traces
+    <M> or <*> Support logging events from userspace
+    [*] Support trace extraction from crash dump
+    <M> or <*> Linux Trace Toolkit Trace Controller
+    <M> or <*> Linux Trace Toolkit State Dump
+  Select <Exit>
+  Select <Exit>
+  Select <Yes>
+make
+make modules_install
+(if necessary, create a initrd with mkinitrd or your preferate alternative)
+(mkinitrd -o /boot/initrd.img-2.6.X-lttng-0.x.xx 2.6.X-lttng-0.x.xx)
+
+-- on X86, X86_64
+make install
+reboot
+Select the Linux 2.6.X-lttng-0.x.xx kernel in your boot loader.
+
+-- on PowerPC
+cp vmlinux.strip /boot/vmlinux-2.6.X-lttng-0.x.xx
+cp System.map /boot/System.map-2.6.X-lttng-0.x.xx
+cp .config /boot/config-2.6.X-lttng-0.x.xx
+depmod -ae -F /boot/System.map-2.6.X-lttng-0.x.xx 2.6.X-lttng-0.x.xx
+mkinitrd /boot/initrd.img-2.6.X-lttng-0.x.xx 2.6.X-lttng-0.x.xx
+(edit /etc/yaboot.conf to add a new entry pointing to your kernel : the entry
+that comes first is the default kernel)
+ybin
+select the right entry at the yaboot prompt (see choices : tab, select : type
+the kernel name followed by enter)
+Select the Linux 2.6.X-lttng-0.x.xx kernel in your boot loader.
+--
+</PRE>
+
+<h3><a href="#TOCeditconfig" name="editconfig">Editing the system wide
+configuration</a></h3>
+
+<p>
+You must activate debugfs and specify a mount point. This is typically done in
+fstab such that it happens at boot time.  If you have never used DebugFS before,
+these operation would do this for you :
+
+<PRE>
+mkdir /mnt/debugfs
+cp /etc/fstab /etc/fstab.lttng.bkp
+echo "debugfs         /mnt/debugfs    debugfs rw              0       0"  >> /etc/fstab
+</PRE>
+
+<p>
+then, rebooting or issuing the following command will activate debugfs :
+<PRE>
+mount /mnt/debugfs
+</PRE>
+
+<p>
+You need to load the LTT modules to be able to control tracing from user
+space. This is done by issuing the following commands. Note however
+these commands load all LTT modules. Depending on what options you chose to
+compile statically, you may not need to issue all these commands. 
+
+<PRE>
+modprobe ltt-trace-control
+modprobe ltt-marker-control
+modprobe ltt-tracer
+modprobe ltt-serialize
+modprobe ltt-relay
+modprobe ipc-trace
+modprobe kernel-trace
+modprobe mm-trace
+modprobe net-trace
+modprobe fs-trace
+modprobe jbd2-trace
+modprobe ext4-trace
+modprobe syscall-trace
+modprobe trap-trace
+#if locking tracing is wanted, uncomment the following
+#modprobe lockdep-trace
+</PRE>
+
+<p>
+If you want to have complete information about the kernel state (including all
+the process names), you need to load the ltt-statedump module. This is done by
+issuing the command :
+
+<PRE>
+modprobe ltt-statedump
+</PRE>
+<p>
+You can automate at boot time loading the ltt-control module by :
+
+<PRE>
+cp /etc/modules /etc/modules.bkp
+echo ltt-trace-control >> /etc/modules
+echo ltt-marker-control >> /etc/modules
+echo ltt-tracer >> /etc/modules
+echo ltt-serialize >> /etc/modules
+echo ltt-relay >> /etc/modules
+echo ipc-trace >> /etc/modules
+echo kernel-trace >> /etc/modules
+echo mm-trace >> /etc/modules
+echo net-trace >> /etc/modules
+echo fs-trace >> /etc/modules
+echo jbd2-trace >> /etc/modules
+echo ext4-trace >> /etc/modules
+echo syscall-trace >> /etc/modules
+echo trap-trace >> /etc/modules
+#if locking tracing is wanted, uncomment the following
+#echo lockdep-trace >> /etc/modules
+</PRE>
+
+
+<h3><a href="#TOCgetlttctl" name="getlttctl">Getting and installing the
+ltt-control package (on the traced machine)</a></h3>
+<p>
+(note : the ltt-control package contains lttd and lttctl. Although it has the
+same name as the ltt-control kernel module, they are *not* the same thing.)
+
+<PRE>
+su -
+cd /usr/src
+wget http://ltt.polymtl.ca/lttng/ltt-control-0.x-xxxx2006.tar.gz
+gzip -cd ltt-control-0.x-xxxx2008.tar.gz | tar xvof -
+cd ltt-control-0.x-xxxx2006
+(refer to README to see the development libraries that must be installed on you
+system)
+./configure
+make
+make install
+</PRE>
+
+<h3><a href="#TOCuserspacetracing" name="userspacetracing">Userspace tracing</a></h3>
+
+<PRE>
+Make sure you selected the kernel menuconfig option :
+    <M> or <*> Support logging events from userspace
+And that the ltt-userspace-event kernel module is loaded if selected as a
+module.
+
+Simple userspace tracing is available through
+echo "some text to record" > /mnt/debugfs/ltt/write_event
+
+It will appear in the trace under event :
+channel : userspace
+event name : event
+</PRE>
+
+<h3><a href="#TOCgetlttv" name="getlttv">Getting and installing the LTTV package
+(on the visualisation machine, same
+or different from the visualisation machine)</a></h3>
+
+<PRE>
+su -
+cd /usr/src
+wget http://ltt.polymtl.ca/packages/lttv-0.x.xx-xxxx2008.tar.gz
+gzip -cd lttv-0.x.xx-xxxx2008.tar.gz | tar xvof -
+cd lttv-0.x.xx-xxxx2008
+(refer to README to see the development libraries that must be installed on your
+system)
+./configure
+make
+make install
+</PRE>
+
+<hr />
+
+
+<h2><a href="#TOCsection2" name="section2">Using LTTng and LTTV</a></h2>
+
+<li><b>IMPORTANT : Arm Linux Kernel Markers after each boot before tracing</b></li>
+<PRE>
+ltt-armall
+</PRE>
+
+<h3><a href="#TOCuselttvgui" name="uselttvgui">Use graphical LTTV to control
+tracing and analyse traces</a></h3>
+<PRE>
+lttv-gui (or /usr/local/bin/lttv-gui)
+  - Spot the "Tracing Control" icon : click on it
+      (it's a traffic light icon)
+    - enter the root password
+    - click "start"
+    - click "stop"
+    - Yes
+      * You should now see a trace
+</PRE>
+
+<h3><a href="#TOCuselttngtext" name="uselttngtext">Use text mode LTTng to control tracing</a></h3>
+<PRE>
+The tracing can be controlled from a terminal by using the lttctl command (as
+root).
+
+Start tracing :
+
+lttctl -C -w /tmp/trace1 trace1
+
+Stop tracing and destroy trace channels :
+
+lttctl -D trace1
+
+see lttctl --help for details.
+</PRE>
+<p>
+(note : to see if the buffers has been filled, look at the dmesg output after
+lttctl -D or after stopping tracing from the GUI, it will show an event lost
+count. If it is the case, try using larger buffers. See lttctl --help to learn 
+how. lttv now also shows event lost messages in the console when loading a trace
+with missing events or lost subbuffers.)
+
+<h3><a href="#TOCuselttvtext" name="uselttvtext">Use text mode LTTV</a></h3>
+<p>
+Feel free to look in /usr/local/lib/lttv/plugins to see all the text and
+graphical plugins available.
+<p>
+For example, a simple trace dump in text format is available with :
+<PRE>
+lttv -m textDump -t /tmp/trace
+</PRE>
+<p>
+See lttv -m textDump --help for detailed command line options of textDump.
+<p>
+It is, in the current state of the project, very useful to use "grep" on the
+text output to filter by specific event fields. You can later copy the timestamp
+of the events to the clipboard and paste them in the GUI by clicking on the
+bottom right label "Current time". Support for this type of filtering should
+be added to the filter module soon.
+
+<h3><a href="#TOChybrid" name="hybrid">Tracing in "Hybrid" mode</a></h3>
+<p>
+Starting from LTTng 0.5.105 and ltt-control 0.20, a new mode can be used :
+hybrid. It can be especially useful when studying big workloads on a long period
+of time.
+<p>
+When using this mode, the most important, low rate control information will be
+recorded during all the trace by lttd (i.e. process creation/exit). The high
+rate information (i.e. interrupt/traps/syscall entry/exit) will be kept in a
+flight recorder buffer (now named flight-channelname_X).
+<p>
+The following lttctl commands take an hybrid trace :
+<p>
+Create trace channel, start lttd on normal channels, start tracing:
+<PRE>
+lttctl -C -w /tmp/trace2 -o channel.kernel.overwrite=1 trace2
+</PRE>
+<p>
+Stop tracing, start lttd on flight recorder channels, destroy trace channels :
+<PRE>
+lttctl -D -w /tmp/trace2 trace2
+</PRE>
+<p>
+Each "overwrite" channel is flight recorder channel.
+
+
+<h3><a href="#TOCflight" name="flight">Tracing in flight recorder mode</a></h3>
+<li>Flight recorder mode</li>
+<p>
+The flight recorder mode writes data into overwritten buffers for all channels,
+including control channels, except for the facilities tracefiles. It consists of
+setting all channels to "overwrite".
+<p>
+The following lttctl commands take a flight recorder trace :
+<PRE>
+lttctl -C -w /tmp/trace3 -o channel.all.overwrite=1 trace3
+...
+lttctl -D -w /tmp/trace3 trace3
+</PRE>
+
+<hr />
+
+
+<h2><a href="#TOCsection3" name="section3">Adding new instrumentations with the
+markers</a></h2>
+<p>
+
+<h3><a href="#TOCkerneltp" name="kerneltp">Adding kernel
+instrumentation</a></h3>
+
+<p>
+See <a
+href="http://git.kernel.org/?p=linux/kernel/git/compudj/linux-2.6-lttng.git;a=blob;f=Documentation/markers.txt">Documentation/markers.txt</a>
+and <a
+href="http://git.kernel.org/?p=linux/kernel/git/compudj/linux-2.6-lttng.git;a=blob;f=Documentation/tracepoints.txt">Documentation/tracepoints.txt</a> in your kernel
+tree.
+<p>
+Also see <a
+href="http://git.kernel.org/?p=linux/kernel/git/compudj/linux-2.6-lttng.git;a=tree;f=ltt/probes">ltt/probes/</a>
+for LTTng probe examples.
+
+<h3><a href="#TOCusertp" name="usertp">Adding userspace instrumentation</a></h3>
+
+Add new events to userspace programs with
+<a href="http://ltt.polymtl.ca/packages/">userspace markers packages</a>.
+Get the latest markers-userspace-*.tar.bz2 and see the Makefile and examples. It
+allows inserting markers in executables and libraries, currently only on x86_32
+and x86_64.
+See <a
+href="http://ltt.polymtl.ca/packages/markers-userspace-0.5.tar.bz2">markers-userspace-0.5.tar.bz2</a> or more recent.
+
+<p>
+Note that a new design document for a 3rd generation of tracepoint/marker-based
+userspace tracing is available at <a
+href="http://ltt.polymtl.ca/svn/trunk/lttv/doc/developer/ust.html">LTTng User-space Tracing
+Design</a>. This new infrastructure is not yet implemented.
+
+<p>
+The easy quick-and-dirty way to perform userspace tracing is currently to write
+an string to /mnt/debugfs/ltt/write_event. See <a
+href="#userspacetracing">Userspace tracing</a> in the
+installation for sources section of this document.
+
+<hr />
+
+<h2><a href="#TOCsection4" name="section4">Creating Debian or RPM packages</a></h2>
+<p>
+
+<h3><a href="#TOCpkgdebian" name="pkgdebian">Create custom LTTV Debian packages</a></h3>
+
+<PRE>
+Use : dpkg-buildpackage -rfakeroot
+</PRE>
+<p>
+You should then have your LTTV .deb files created for your architecture.
+
+<h3><a href="#TOCpkglttng" name="pkglttng">Create custom LTTng packages</a></h3>
+<p>
+For building LTTng Debian packages :
+get the build tree with patches applies as explained in section 2.
+
+<PRE>
+make menuconfig (or xconfig or config) (customize your configuration)
+make-kpkg kernel_image
+</PRE>
+<p>
+You will then see your freshly created .deb in /usr/src. Install it with
+<PRE>
+dpkg -i /usr/src/(image-name).deb
+</PRE>
+<p>
+Then, follow the section "Editing the system wide configuration" in section 2.
+
+<hr />
+
+<h2><a href="#TOCsection5" name="section5">Examples of LTTng use in the field</a></h2>
+<p>
+A few examples of successful LTTng users :
+
+<ul>
+<li> Google are deploying LTTng on their servers. They want to use it to
+  monitor their production servers (with flight recorder mode tracing)
+  and to help them solve hard to reproduce problems. They have had
+  success with such tracing approach to fix "rare disk delay" issues and
+  VM-related issues presented in this article :
+<ul>
+  <li> <a href="http://ltt.polymtl.ca/papers/bligh-Reprint.pdf">Linux Kernel
+Debugging on Google-sized clusters at Ottawa Linux
+    Symposium 2007</a>
+</ul>
+<li> IBM Research have had problems with Commercial Scale-out applications,
+  which are being an increasing trend to split large server workloads.
+  They used LTTng successfully to solve a distributed filesystem-related
+  issue. It's presented in the same paper above.
+
+<li> Autodesk, in the development of their next-generation of Linux
+  audio/video edition applications, used LTTng extensively to solve
+  soft real-time issues they had. Also presented in the same paper.
+
+<li> Wind River included LTTng in their Linux distribution so their
+  clients, already familiar to Wind River own tracing solution in
+  VxWorks, car have the same kind of feature they have relied on for a
+  long time.
+
+<li> Montavista have integrated LTTng in their distribution for the same
+  reasons. It's used by Sony amongst others.
+
+<li> SuSE are currently integrating LTTng in their next SLES distribution,
+  because their clients asking for solutions which supports a kernel
+  closer to real-time need such tools to debug their problems.
+
+<li> A project between Ericsson, the Canadian Defense, NSERC and various
+  universities is just starting. It aims at monitoring and debugging
+  multi-core systems and provide automated and help user system behavior
+  analysis.
+
+<li> Siemens have been using LTTng internally for quite some time now.
+</ul>
+  </body>
+</html>
