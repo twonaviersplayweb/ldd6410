@@ -101,3 +101,4 @@ obj-$(CONFIG_SUN_LDOMS) += ldc.o vio.o viohs.o ds.o
 obj-$(CONFIG_AUDIT)     += audit.o
 audit--$(CONFIG_AUDIT)  := compat_audit.o
 obj-$(CONFIG_COMPAT)    += $(audit--y)
+obj-$(USE_IMMEDIATE)	+= immediate.o

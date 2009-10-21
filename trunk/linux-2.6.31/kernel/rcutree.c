@@ -38,6 +38,7 @@
 #include <asm/atomic.h>
 #include <linux/bitops.h>
 #include <linux/module.h>
+#include <linux/poison.h>
 #include <linux/completion.h>
 #include <linux/moduleparam.h>
 #include <linux/percpu.h>
@@ -45,6 +46,7 @@
 #include <linux/cpu.h>
 #include <linux/mutex.h>
 #include <linux/time.h>
+#include <trace/rcu.h>
 
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 static struct lock_class_key rcu_lock_key;
@@ -108,6 +110,10 @@ DEFINE_PER_CPU(struct rcu_dynticks, rcu_dynticks) = {
 static int blimit = 10;		/* Maximum callbacks per softirq. */
 static int qhimark = 10000;	/* If this many pending, ignore blimit. */
 static int qlowmark = 100;	/* Once only this many pending, use blimit. */
+
+DEFINE_TRACE(rcu_tree_call_rcu);
+DEFINE_TRACE(rcu_tree_call_rcu_bh);
+DEFINE_TRACE(rcu_tree_callback);
 
 static void force_quiescent_state(struct rcu_state *rsp, int relaxed);
 
@@ -921,6 +927,11 @@ static void rcu_do_batch(struct rcu_data *rdp)
 	while (list) {
 		next = list->next;
 		prefetch(next);
+		trace_rcu_tree_callback(list);
+#ifdef DEBUG_RCU_HEAD
+		WARN_ON_ONCE(list->debug != LIST_POISON1);
+		list->debug = NULL;
+#endif
 		list->func(list);
 		list = next;
 		if (++count >= rdp->blimit)
@@ -1188,6 +1199,11 @@ __call_rcu(struct rcu_head *head, void (*func)(struct rcu_head *rcu),
 	unsigned long flags;
 	struct rcu_data *rdp;
 
+#ifdef DEBUG_RCU_HEAD
+	WARN_ON_ONCE(head->debug);
+	head->debug = LIST_POISON1;
+#endif
+
 	head->func = func;
 	head->next = NULL;
 
@@ -1231,6 +1247,7 @@ __call_rcu(struct rcu_head *head, void (*func)(struct rcu_head *rcu),
  */
 void call_rcu(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
 {
+	trace_rcu_tree_call_rcu(head, _RET_IP_);
 	__call_rcu(head, func, &rcu_state);
 }
 EXPORT_SYMBOL_GPL(call_rcu);
@@ -1240,6 +1257,7 @@ EXPORT_SYMBOL_GPL(call_rcu);
  */
 void call_rcu_bh(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
 {
+	trace_rcu_tree_call_rcu_bh(head, _RET_IP_);
 	__call_rcu(head, func, &rcu_bh_state);
 }
 EXPORT_SYMBOL_GPL(call_rcu_bh);

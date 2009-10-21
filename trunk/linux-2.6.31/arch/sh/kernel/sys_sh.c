@@ -25,6 +25,9 @@
 #include <asm/syscalls.h>
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
+#include <trace/ipc.h>
+
+DEFINE_TRACE(ipc_call);
 
 static inline long
 do_mmap2(unsigned long addr, unsigned long len, unsigned long prot,
@@ -87,6 +90,8 @@ asmlinkage int sys_ipc(uint call, int first, int second,
 
 	version = call >> 16; /* hack for backward compatibility */
 	call &= 0xffff;
+
+	trace_ipc_call(call, first);
 
 	if (call <= SEMTIMEDOP)
 		switch (call) {

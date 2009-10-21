@@ -28,6 +28,7 @@
 #include <linux/compiler.h>
 #include <linux/module.h>
 #include <linux/ipc.h>
+#include <trace/ipc.h>
 
 #include <asm/branch.h>
 #include <asm/cachectl.h>
@@ -38,6 +39,8 @@
 #include <asm/shmparam.h>
 #include <asm/sysmips.h>
 #include <asm/uaccess.h>
+
+DEFINE_TRACE(ipc_call);
 
 /*
  * For historic reasons the pipe(2) syscall on MIPS has an unusual calling
@@ -332,6 +335,8 @@ SYSCALL_DEFINE6(ipc, unsigned int, call, int, first, int, second,
 
 	version = call >> 16; /* hack for backward compatibility */
 	call &= 0xffff;
+
+	trace_ipc_call(call, first);
 
 	switch (call) {
 	case SEMOP:

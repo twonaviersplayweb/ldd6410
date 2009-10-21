@@ -571,6 +571,8 @@ void timer_interrupt(struct pt_regs * regs)
 	 * some CPUs will continuue to take decrementer exceptions */
 	set_dec(DECREMENTER_MAX);
 
+	trace_trap_entry(regs, regs->trap);
+
 #ifdef CONFIG_PPC32
 	if (test_perf_counter_pending()) {
 		clear_perf_counter_pending();
@@ -616,6 +618,8 @@ void timer_interrupt(struct pt_regs * regs)
 
 	irq_exit();
 	set_irq_regs(old_regs);
+
+	trace_trap_exit();
 }
 
 void wakeup_decrementer(void)

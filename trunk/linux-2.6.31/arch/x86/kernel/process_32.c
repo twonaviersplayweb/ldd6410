@@ -40,6 +40,7 @@
 #include <linux/uaccess.h>
 #include <linux/io.h>
 #include <linux/kdebug.h>
+#include <trace/sched.h>
 
 #include <asm/pgtable.h>
 #include <asm/system.h>
@@ -63,6 +64,8 @@ asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
 
 DEFINE_PER_CPU(struct task_struct *, current_task) = &init_task;
 EXPORT_PER_CPU_SYMBOL(current_task);
+
+DEFINE_TRACE(sched_kthread_create);
 
 /*
  * Return saved PC of a blocked thread.
@@ -207,6 +210,7 @@ extern void kernel_thread_helper(void);
 int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
 {
 	struct pt_regs regs;
+	long pid;
 
 	memset(&regs, 0, sizeof(regs));
 
@@ -223,7 +227,10 @@ int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
 	regs.flags = X86_EFLAGS_IF | X86_EFLAGS_SF | X86_EFLAGS_PF | 0x2;
 
 	/* Ok, create the new process.. */
-	return do_fork(flags | CLONE_VM | CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
+	pid = do_fork(flags | CLONE_VM | CLONE_UNTRACED,
+			0, &regs, 0, NULL, NULL);
+	trace_sched_kthread_create(fn, pid);
+	return pid;
 }
 EXPORT_SYMBOL(kernel_thread);
 

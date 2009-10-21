@@ -48,7 +48,8 @@ static inline int calc_rec_size(int timestamp, int extra)
 	return timestamp ? rec_size += KVM_TRC_CYCLE_SIZE : rec_size;
 }
 
-static void kvm_add_trace(void *probe_private, void *call_data,
+static void kvm_add_trace(const struct marker *mdata,
+			  void *probe_private, void *call_private,
 			  const char *format, va_list *args)
 {
 	struct kvm_trace_probe *p = probe_private;
@@ -88,8 +89,8 @@ static void kvm_add_trace(void *probe_private, void *call_data,
 }
 
 static struct kvm_trace_probe kvm_trace_probes[] = {
-	{ "kvm_trace_entryexit", "%u %p %u %u %u %u %u %u", 1, kvm_add_trace },
-	{ "kvm_trace_handler", "%u %p %u %u %u %u %u %u", 0, kvm_add_trace },
+	{ "trace_entryexit", "%u %p %u %u %u %u %u %u", 1, kvm_add_trace },
+	{ "trace_handler", "%u %p %u %u %u %u %u %u", 0, kvm_add_trace },
 };
 
 static int lost_records_get(void *data, u64 *val)
@@ -182,7 +183,8 @@ static int do_kvm_trace_enable(struct kvm_user_trace_setup *kuts)
 	for (i = 0; i < ARRAY_SIZE(kvm_trace_probes); i++) {
 		struct kvm_trace_probe *p = &kvm_trace_probes[i];
 
-		r = marker_probe_register(p->name, p->format, p->probe_func, p);
+		r = marker_probe_register("kvm", p->name, p->format,
+					  p->probe_func, p);
 		if (r)
 			printk(KERN_INFO "Unable to register probe %s\n",
 			       p->name);
@@ -250,7 +252,7 @@ void kvm_trace_cleanup(void)
 
 		for (i = 0; i < ARRAY_SIZE(kvm_trace_probes); i++) {
 			struct kvm_trace_probe *p = &kvm_trace_probes[i];
-			marker_probe_unregister(p->name, p->probe_func, p);
+			marker_probe_unregister("kvm", p->name, p->probe_func, p);
 		}
 		marker_synchronize_unregister();
 

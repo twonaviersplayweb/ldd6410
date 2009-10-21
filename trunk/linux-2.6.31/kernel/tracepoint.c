@@ -24,6 +24,7 @@
 #include <linux/tracepoint.h>
 #include <linux/err.h>
 #include <linux/slab.h>
+#include <linux/immediate.h>
 
 extern struct tracepoint __start___tracepoints[];
 extern struct tracepoint __stop___tracepoints[];
@@ -250,7 +251,7 @@ static void set_tracepoint(struct tracepoint_entry **entry,
 	 * is used.
 	 */
 	rcu_assign_pointer(elem->funcs, (*entry)->funcs);
-	elem->state = active;
+	elem->state__imv = active;
 }
 
 /*
@@ -261,7 +262,7 @@ static void set_tracepoint(struct tracepoint_entry **entry,
  */
 static void disable_tracepoint(struct tracepoint *elem)
 {
-	elem->state = 0;
+	elem->state__imv = 0;
 	rcu_assign_pointer(elem->funcs, NULL);
 }
 
@@ -304,6 +305,9 @@ static void tracepoint_update_probes(void)
 		__stop___tracepoints);
 	/* tracepoints in modules. */
 	module_update_tracepoints();
+	/* Update immediate values */
+	core_imv_update();
+	module_imv_update();
 }
 
 static void *tracepoint_add_probe(const char *name, void *probe)

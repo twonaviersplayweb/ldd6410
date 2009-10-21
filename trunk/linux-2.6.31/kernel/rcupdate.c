@@ -90,6 +90,7 @@ void synchronize_rcu(void)
 	if (rcu_blocking_is_gp())
 		return;
 
+	INIT_RCU_HEAD(&rcu.head);
 	init_completion(&rcu.completion);
 	/* Will wake me after RCU finished. */
 	call_rcu(&rcu.head, wakeme_after_rcu);

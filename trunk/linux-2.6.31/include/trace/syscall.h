@@ -2,6 +2,7 @@
 #define _TRACE_SYSCALL_H
 
 #include <asm/ptrace.h>
+#include <linux/tracepoint.h>
 
 /*
  * A syscall entry in the ftrace syscalls array.
@@ -31,5 +32,12 @@ static inline void stop_ftrace_syscalls(void)			{ }
 static inline void ftrace_syscall_enter(struct pt_regs *regs)	{ }
 static inline void ftrace_syscall_exit(struct pt_regs *regs)	{ }
 #endif
+
+DECLARE_TRACE(syscall_entry,
+	TP_PROTO(struct pt_regs *regs, long id),
+	TP_ARGS(regs, id));
+DECLARE_TRACE(syscall_exit,
+	TP_PROTO(long ret),
+	TP_ARGS(ret));
 
 #endif /* _TRACE_SYSCALL_H */

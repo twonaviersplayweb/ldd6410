@@ -34,6 +34,7 @@
 #include <linux/hardirq.h> /* for BUG_ON(!in_atomic()) only */
 #include <linux/memcontrol.h>
 #include <linux/mm_inline.h> /* for page_is_file_cache() */
+#include <trace/filemap.h>
 #include "internal.h"
 
 /*
@@ -43,6 +44,10 @@
 
 #include <asm/mman.h>
 
+DEFINE_TRACE(wait_on_page_start);
+DEFINE_TRACE(wait_on_page_end);
+DEFINE_TRACE(add_to_page_cache);
+DEFINE_TRACE(remove_from_page_cache);
 
 /*
  * Shared mappings implemented 30.11.1994. It's not fully working yet,
@@ -120,6 +125,7 @@ void __remove_from_page_cache(struct page *page)
 	page->mapping = NULL;
 	mapping->nrpages--;
 	__dec_zone_page_state(page, NR_FILE_PAGES);
+	trace_remove_from_page_cache(mapping);
 	BUG_ON(page_mapped(page));
 
 	/*
@@ -476,6 +482,7 @@ int add_to_page_cache_locked(struct page *page, struct address_space *mapping,
 		if (likely(!error)) {
 			mapping->nrpages++;
 			__inc_zone_page_state(page, NR_FILE_PAGES);
+			trace_add_to_page_cache(mapping, offset);
 			spin_unlock_irq(&mapping->tree_lock);
 		} else {
 			page->mapping = NULL;
@@ -560,9 +567,11 @@ void wait_on_page_bit(struct page *page, int bit_nr)
 {
 	DEFINE_WAIT_BIT(wait, &page->flags, bit_nr);
 
+	trace_wait_on_page_start(page, bit_nr);
 	if (test_bit(bit_nr, &page->flags))
 		__wait_on_bit(page_waitqueue(page), &wait, sync_page,
 							TASK_UNINTERRUPTIBLE);
+	trace_wait_on_page_end(page, bit_nr);
 }
 EXPORT_SYMBOL(wait_on_page_bit);
 

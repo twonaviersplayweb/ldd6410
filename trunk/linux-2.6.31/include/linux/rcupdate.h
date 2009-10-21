@@ -49,6 +49,9 @@
 struct rcu_head {
 	struct rcu_head *next;
 	void (*func)(struct rcu_head *head);
+#ifdef CONFIG_DEBUG_RCU_HEAD
+	struct rcu_head *debug;
+#endif
 };
 
 /* Internal to kernel, but needed by rcupreempt.h. */
@@ -64,11 +67,19 @@ extern int rcu_scheduler_active;
 #error "Unknown RCU implementation specified to kernel configuration"
 #endif /* #else #if defined(CONFIG_CLASSIC_RCU) */
 
+#ifdef CONFIG_DEBUG_RCU_HEAD
+#define RCU_HEAD_INIT 	{ .next = NULL, .func = NULL, .debug = NULL }
+#define RCU_HEAD(head) struct rcu_head head = RCU_HEAD_INIT
+#define INIT_RCU_HEAD(ptr) do { \
+       (ptr)->next = NULL; (ptr)->func = NULL; (ptr)->debug = NULL; \
+} while (0)
+#else
 #define RCU_HEAD_INIT 	{ .next = NULL, .func = NULL }
 #define RCU_HEAD(head) struct rcu_head head = RCU_HEAD_INIT
 #define INIT_RCU_HEAD(ptr) do { \
        (ptr)->next = NULL; (ptr)->func = NULL; \
 } while (0)
+#endif
 
 /**
  * rcu_read_lock - mark the beginning of an RCU read-side critical section.
