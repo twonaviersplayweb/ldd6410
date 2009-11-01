@@ -28,6 +28,14 @@ config MACH_ANW6410
 	help
 	  Machine support for the A&W6410
 
+config MACH_LDD6410
+	bool "LDD6410"
+	select CPU_S3C6410
+	select S3C_DEV_FB
+	select S3C64XX_SETUP_FB_24BPP
+	help
+	  Machine support for the LDD6410
+
 config MACH_SMDK6410
 	bool "SMDK6410"
 	select CPU_S3C6410
