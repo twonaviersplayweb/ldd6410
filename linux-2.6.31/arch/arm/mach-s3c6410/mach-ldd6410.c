@@ -3,7 +3,7 @@
  * Copyright 2009 LiHacker Computer Technology Inc.
  *	Barry Song <21cnbao@gmail.com>
  *
- * For product information, visit http://code.google.com/p/mini2440/
+ * For product information, visit http://code.google.com/p/ldd6410/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
