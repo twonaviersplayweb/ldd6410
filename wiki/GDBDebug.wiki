@@ -1,3 +1,4 @@
+#summary gdb调试器用法
 #labels GDB,debug
 = gdb调试器用法 =
 
@@ -143,6 +144,7 @@ Breakpoint 1, main () at gdb_example.c:25
 (gdb) step
 add (a=48, b=85) at gdb_example.c:3
 3         return a + b;
+
 }}}
 单步执行的更复杂用法包括：
 
