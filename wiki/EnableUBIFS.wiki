@@ -1,5 +1,8 @@
+#summary ubifs内核配置、映像制作、烧录与挂载
 #labels UBIFS,mkfs.ubifs,ubiformat,ubiattach,ubinize,ubinfo
-#ubifs内核配置、映像制作、烧录与挂载
+
+讲解ubifs内核配置、映像制作、烧录与挂载的过程。
+
 = 内核配置 =
 配置内核选中UBIFS
 {{{
