@@ -65,7 +65,7 @@
 /*
  * Architecture magic and machine type
  */
-#define MACH_TYPE		1626
+#define MACH_TYPE		2296
 #define UBOOT_MAGIC		(0x43090000 | MACH_TYPE)
 
 /* Power Management is enabled */
