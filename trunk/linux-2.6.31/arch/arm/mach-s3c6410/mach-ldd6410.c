@@ -173,8 +173,8 @@ static struct resource ldd6410_dm9000_resource[] = {
 		.flags = IORESOURCE_MEM,
 	},
 	[2] = {
-		.start = IRQ_EINT(15),
-		.end   = IRQ_EINT(15),
+		.start = IRQ_EINT(7),
+		.end   = IRQ_EINT(7),
 		.flags = IORESOURCE_IRQ | IRQF_TRIGGER_HIGH,
 	},
 };
