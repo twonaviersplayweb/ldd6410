@@ -300,8 +300,19 @@ eth_init(bd_t * bd)
 	DM9000_iow(DM9000_ISR, 0x0f);	/* Clear interrupt status */
 
 	/* Set Node address */
-	for (i = 0; i < 6; i++)
+/*	for (i = 0; i < 6; i++)
 		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
+*/
+	char *s, *e;
+	s = getenv ("ethaddr");
+	for (i = 0; i < 6; ++i)
+	{
+		bd->bi_enetaddr[i] = s ?
+			simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
+
 	printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", bd->bi_enetaddr[0],
 	       bd->bi_enetaddr[1], bd->bi_enetaddr[2], bd->bi_enetaddr[3],
 	       bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
@@ -419,12 +430,13 @@ void
 eth_halt(void)
 {
 	DM9000_DBG("eth_halt\n");
-
+#if 0
 	/* RESET devie */
 	phy_write(0, 0x8000);	/* PHY RESET */
 	DM9000_iow(DM9000_GPR, 0x01);	/* Power-Down PHY */
 	DM9000_iow(DM9000_IMR, 0x80);	/* Disable all interrupt */
 	DM9000_iow(DM9000_RCR, 0x00);	/* Disable RX */
+#endif
 }
 
 /*
@@ -439,7 +451,7 @@ eth_rx(void)
 #ifdef CONFIG_DM9000_USE_32BIT
 	u32 tmpdata;
 #endif
-
+	do{
 	/* Check packet ready or not */
 	DM9000_ior(DM9000_MRCMDX);	/* Dummy read */
 	rxbyte = DM9000_inb(DM9000_DATA);	/* Got most updated data */
@@ -514,9 +526,11 @@ eth_rx(void)
 		/* Pass to upper layer */
 		DM9000_DBG("passing packet to upper layer\n");
 		NetReceive(NetRxPackets[0], RxLen);
-		return RxLen;
+	//	return RxLen;
 	}
-	return 0;
+	} while (rxbyte == DM9000_PKT_RDY);
+	//return 0;
+	return RxLen;
 }
 
 /*

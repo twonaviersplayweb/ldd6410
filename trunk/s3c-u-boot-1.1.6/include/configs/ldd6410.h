@@ -42,7 +42,7 @@
 
 #define CONFIG_ENABLE_MMU
 #ifdef CONFIG_ENABLE_MMU
-#define virt_to_phys(x)	virt_to_phy_smdk6410(x)
+#define virt_to_phys(x)	virt_to_phy_ldd6410(x)
 #else
 #define virt_to_phys(x)	(x)
 #endif
@@ -89,10 +89,17 @@
  * Hardware drivers
  */
 //#define CONFIG_DRIVER_SMC911X	1	/* we have a SMC9115 on-board */
+#define CONFIG_DRIVER_DM9000    1       /* we have a DM9000 on-board */
 
 #ifdef 	CONFIG_DRIVER_SMC911X	
 #undef	CONFIG_DRIVER_CS8900	
 #define CONFIG_DRIVER_SMC911X_BASE	0x18800300
+#elif defined(CONFIG_DRIVER_DM9000)
+#define CONFIG_DRIVER_DM9000 1
+#define CONFIG_DM9000_BASE 0x18000300
+#define DM9000_IO CONFIG_DM9000_BASE
+#define DM9000_DATA (CONFIG_DM9000_BASE+4)
+#define CONFIG_DM9000_USE_16BIT
 #else
 #define CONFIG_DRIVER_CS8900	1	/* we have a CS8900 on-board */
 #define CS8900_BASE	  	0x18800300
