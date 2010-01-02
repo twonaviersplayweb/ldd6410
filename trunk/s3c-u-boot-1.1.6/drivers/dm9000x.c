@@ -329,6 +329,8 @@ eth_init(bd_t * bd)
 	/* Activate DM9000 */
 	DM9000_iow(DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);	/* RX enable */
 	DM9000_iow(DM9000_IMR, IMR_PAR);	/* Enable TX/RX interrupt mask */
+
+#if 1
 	i = 0;
 	while (!(phy_read(1) & 0x20)) {	/* autonegation complete bit */
 		udelay(1000);
@@ -338,6 +340,7 @@ eth_init(bd_t * bd)
 			return 0;
 		}
 	}
+#endif
 
 	/* see what we've got */
 	lnk = phy_read(17) >> 12;
@@ -451,7 +454,9 @@ eth_rx(void)
 #ifdef CONFIG_DM9000_USE_32BIT
 	u32 tmpdata;
 #endif
-	do{
+	DM9000_ior(DM9000_MRRH);
+	DM9000_ior(DM9000_MRRL);
+	do {	
 	/* Check packet ready or not */
 	DM9000_ior(DM9000_MRCMDX);	/* Dummy read */
 	rxbyte = DM9000_inb(DM9000_DATA);	/* Got most updated data */
@@ -522,13 +527,13 @@ eth_rx(void)
 			dm9000_reset();
 		}
 	} else {
-
 		/* Pass to upper layer */
 		DM9000_DBG("passing packet to upper layer\n");
 		NetReceive(NetRxPackets[0], RxLen);
 	//	return RxLen;
 	}
 	} while (rxbyte == DM9000_PKT_RDY);
+	
 	//return 0;
 	return RxLen;
 }
