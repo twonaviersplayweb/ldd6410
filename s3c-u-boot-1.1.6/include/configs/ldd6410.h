@@ -65,7 +65,7 @@
 /*
  * Architecture magic and machine type
  */
-#define MACH_TYPE		2296
+#define MACH_TYPE		1626
 #define UBOOT_MAGIC		(0x43090000 | MACH_TYPE)
 
 /* Power Management is enabled */
@@ -175,12 +175,12 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
-/*#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,9600" */
+#define CONFIG_BOOTARGS    	"set bootargs root=/dev/mtdblock2 rootfstype=yaffs2 console=ttySAC0,115200"
 #define CONFIG_ETHADDR		00:40:5c:26:0a:5b
-#define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_IPADDR		192.168.0.20
-#define CONFIG_SERVERIP		192.168.0.10
-#define CONFIG_GATEWAYIP	192.168.0.1
+#define CONFIG_NETMASK      255.255.255.0
+#define CONFIG_IPADDR		192.168.1.20
+#define CONFIG_SERVERIP		192.168.1.111
+#define CONFIG_GATEWAYIP	192.168.1.1
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
@@ -408,7 +408,12 @@
  * LDD6400 board specific data
  */
 
-#define CONFIG_IDENT_STRING	" for LDD6410"
+#define CONFIG_IDENT_STRING	" for LDD6410" \
+"\n****************************************" \
+"\n**    LDD-S3C6410 Nand boot v0.1      **" \
+"\n**  ShangHai Lihacker Computer Tec    **" \
+"\n**    http://www.lihacker.com         **" \
+"\n****************************************"
 
 /* total memory required by uboot */
 #define CFG_UBOOT_SIZE		(2*1024*1024)
@@ -455,15 +460,15 @@
 #define CFG_NAND_LARGEPAGE_SAVEENV
 #define CFG_NAND_HWECC
 //#define CFG_NAND_FLASH_BBT
-#define CONFIG_BOOTCOMMAND	"nand read c0008000 40000 1c0000;bootm c0008000"
+#define CONFIG_BOOTCOMMAND	"nand read 0xc0008000 0x00080000 0x00800000;bootm 0xc0008000"
 #elif defined(CONFIG_BOOT_MOVINAND)
 #define CFG_ENV_IS_IN_MOVINAND
-#define CONFIG_BOOTCOMMAND	"movi read zImage c0008000;bootm c0008000"
+#define CONFIG_BOOTCOMMAND	"movi read kernel c0008000;movi read rootfs c0800000;bootm c0008000"
 #elif defined(CONFIG_BOOT_ONENAND) || defined(CONFIG_BOOT_ONENAND_IROM)
 #define CFG_ONENAND_BASE 	(0x70100000)
 #define CFG_MAX_ONENAND_DEVICE	1
 #define CFG_ENV_IS_IN_ONENAND
-#define CONFIG_BOOTCOMMAND	"onenand read c0008000 40000 1c0000;bootm c0008000"
+#define CONFIG_BOOTCOMMAND	"onenand read c0008000 40000 3c0000;bootm c0008000"
 #else
 # error Define one of CONFIG_BOOT_{NAND|MOVINAND|ONENAND|ONENAND_IROM}
 #endif
