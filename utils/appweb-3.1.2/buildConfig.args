@@ -1,0 +1,9 @@
+export AR="arm-linux-ar"
+export CC="arm-linux-gcc"
+export CXX="arm-linux-gcc"
+export LD="arm-linux-ld"
+export LDXX="arm-linux-gcc"
+export RANLIB="arm-linux-ranlib"
+export PATH="/opt/uClinux/bfin-uclinux/bin:/opt/uClinux/bfin-linux-uclibc/bin:/usr/local/arm/4.2.2-eabi/usr/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/arm/4.2.2-eabi/usr/bin"
+
+./configure --host=arm-s3c6410-linux --build=i686-pc-linux --disable-shared --enable-static --port=80 --disable-multi-thread --type=RELEASE --prefix=/usr/appWeb --webDir=/var/web --disable-test --disable-samples

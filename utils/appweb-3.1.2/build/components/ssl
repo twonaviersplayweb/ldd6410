@@ -1,0 +1,26 @@
+#
+#   SSL
+#
+defineComponent() {
+	local deps path for name search ver imports libs
+
+    [ $KIND = "BUILD" -a $BLD_CROSS = 1 ] && return 0
+
+    libs="mprssl"
+    if [ $OS = LINUX ] ; then
+        libs="$libs pthread.so"
+    fi
+    deps=
+
+    if isdefined OPENSSL ; then
+        deps="$deps openssl"
+    fi
+    if isdefined MATRIXSSL ; then
+        deps="$deps matrixssl"
+    fi
+
+    if [ "$deps" != "" ] ; then
+        deps="$deps mpr"
+        configureComponent --name ssl --path "src/ssl" --dependencies "$deps" --libs "$libs"
+    fi
+}

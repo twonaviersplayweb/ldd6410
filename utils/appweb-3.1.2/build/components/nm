@@ -1,0 +1,8 @@
+#
+#   Nm
+#
+defineComponent() {
+    local file
+    eval file=\$BLD_${KIND}_NM
+    configureComponent --name nm --path "`probe --path "$1" --base $file`"
+}

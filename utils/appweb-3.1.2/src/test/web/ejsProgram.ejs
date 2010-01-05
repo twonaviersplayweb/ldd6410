@@ -1,0 +1,14 @@
+<html>
+<head>ejsProgram: EJS Output</head>
+<body>
+<% 	
+    if (params.code) {
+        response.code = params.code
+    } else if (params.redirect) {
+        redirect(params.redirect)
+    }
+    d(controller)
+%>
+</body>
+</html>
+

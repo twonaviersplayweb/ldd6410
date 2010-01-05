@@ -1,0 +1,42 @@
+#
+#   Ejs
+#
+defineComponent() {
+    local dependencies libs libname optional path
+
+    path="src"
+    [ -d src/ejs ] && path="src/ejs"
+
+    if [ "$BLD_PRODUCT_EJS" = 1 ] ; then
+        libname="ejs"
+    else
+        libname="ajs"
+    fi
+
+    optional="ssl"
+    if [ "$BLD_FEATURE_STATIC" = 1 ] ; then
+        optional="$optional sqlite"
+    else
+        if [ "$BLD_FEATURE_EJS_ALL_IN_ONE" != 1 ] ; then
+#           [ "$BLD_FEATURE_EJS_DB" = 1 ] && libs="$libs ejsdb"
+#           [ "$BLD_FEATURE_EJS_WEB" = 1 ] && libs="$libs ejsweb"
+            :
+        else
+            if isdefined SQLITE ; then
+                optional="$optional sqlite"
+            fi
+        fi
+    fi
+    configureComponent --builtin --name ejs --path "$path" --dependencies "mpr" --optional-dependencies "$optional" \
+        --libs "${libname} $libs"
+
+    if [ "$path" != "" ] ; then
+        if [ "$BLD_PRODUCT_APPWEB" = 1 ] ; then
+            BLD_FEATURE_EJS_WEB=1
+        fi
+        if [ "$BLD_FEATURE_EJS_WEB" = 1 ] ; then
+            BLD_FEATURE_HTTP=1
+            BLD_FEATURE_CMD=1
+        fi
+    fi
+}
