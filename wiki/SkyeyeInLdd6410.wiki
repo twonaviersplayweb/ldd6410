@@ -62,7 +62,10 @@
 {{{
    mount -t nfs -o nolock 10.0.0.1:/home/nfs /mnt
 }}}
-
+由于skyeye模拟的Ethernet稳定性不太好，最好用如下参数来mount nfs:
+{{{
+   mount -t nfs -o nolock,soft,timeo=6000,retrans=100,rsize-16,wsize=16 10.0.0.1:/home/nfs /mnt
+}}}
 = 编译uboot、内核和文件系统 =
 
 == 编译u-boot ==
