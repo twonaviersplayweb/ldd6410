@@ -2,7 +2,7 @@ Index: include/configs/smdk2410.h
 ===================================================================
 --- include/configs/smdk2410.h	(revision 89)
 +++ include/configs/smdk2410.h	(working copy)
-@@ -44,12 +44,16 @@
+@@ -44,12 +44,17 @@
  #define USE_920T_MMU		1
  #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
  
@@ -15,20 +15,43 @@ Index: include/configs/smdk2410.h
  
 +#define CONFIG_ZIMAGE_BOOT
 +#define CONFIG_IMAGE_BOOT
++#define CONFIG_CMDLINE_TAG
 +
  /*
   * Hardware drivers
   */
+@@ -90,13 +95,13 @@
+ #include <cmd_confdefs.h>
+ 
+ #define CONFIG_BOOTDELAY	3
+-/*#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,9600" */
++#define CONFIG_BOOTARGS    	"set bootargs mem=32M console=ttySAC0 root=/dev/ram initrd=0xc0800000,0x00800000 ramdisk_size=8192 rw"
+ /*#define CONFIG_ETHADDR	08:00:3e:26:0a:5b */
+ #define CONFIG_NETMASK          255.255.255.0
+-#define CONFIG_IPADDR		10.0.0.110
++#define CONFIG_IPADDR		10.0.0.2
+ #define CONFIG_SERVERIP		10.0.0.1
+ /*#define CONFIG_BOOTFILE	"elinos-lart" */
+-/*#define CONFIG_BOOTCOMMAND	"tftp; bootm" */
++#define CONFIG_BOOTCOMMAND	"run bootargs; sleep 1; tftp 0xc0008000 zImage; bootm 0xc0008000"
+ 
+ #if (CONFIG_COMMANDS & CFG_CMD_KGDB)
+ #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
 Index: board/smdk2410/smdk2410.c
 ===================================================================
 --- board/smdk2410/smdk2410.c	(revision 89)
 +++ board/smdk2410/smdk2410.c	(working copy)
-@@ -106,7 +106,7 @@
+@@ -106,10 +106,12 @@
  	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;
  
  	/* adress of boot parameters */
 -	gd->bd->bi_boot_params = 0x30000100;
 +	gd->bd->bi_boot_params = 0xC0000100;
  
++#if 0
  	icache_enable();
  	dcache_enable();
++#endif
+ 
+ 	return 0;
+ }
