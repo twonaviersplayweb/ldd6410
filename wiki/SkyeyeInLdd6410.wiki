@@ -86,9 +86,9 @@
   make vmlinux得到内核的vmlinux映像。
 
 == 制作根文件系统initrd.img ==
-  进入ldd6410工程代码的如下目录：ldd6410/utils/busybox-1.15.1
-  运行make menuconfig选择必要的项目，然后运行make，make install。make install运行的结果是会生成_install,busybox对应的linuxrc, /bin, /sbin, /usr就在该目录了。
-  有了 busybox 后制作 initrd.img 就容易多了,只是说起来比较烦琐。以命令演示如下:
+  进入ldd6410工程代码的如下目录：`ldd6410/utils/busybox-1.15.1`
+  运行`make menuconfig`选择必要的项目，然后运行`make`，`make install`。`make install`运行的结果是会生成`_install`,busybox对应的`linuxrc`, `/bin`, `/sbin`, `/usr`就在该目录了。
+  有了 busybox 后制作 `initrd.img` 就容易多了,只是说起来比较烦琐。以命令演示如下:
   创建映像文件并挂到 initrd 目录
 {{{
   mkdir initrd
@@ -154,10 +154,12 @@
 = 运行 =
    将编译得到的u-boot、vmlinux、initrd.img放入同一目录，将vmlinux、zImage拷入tftp服务器根目录。
    可以直接运行Linux，使用http://ldd6410.googlecode.com/files/ldd6410-skyeye-pack.tar.gz 中的skyeye-standalone.conf配置文件，结合内核映像vmlinux:
-  `sudo skyeye -e vmlinux -c skyeye-standalone.conf`
+{{{
+sudo skyeye -e vmlinux -c skyeye-standalone.conf
+}}}
    也可以先启动u-boot,然后在uboot中下载vmlinux并启动它，使用http://ldd6410.googlecode.com/files/ldd6410-skyeye-pack.tar.gz 中的skyeye-with-uboot.conf 配置文件，结合先前编译得到的u-boot:
 {{{
-   sudo skyeye -e u-boot -c skyeye-with-uboot.conf
+   sudo skyeye -e u-boot -c skyeye-with-uboot.conf -l 0x30000000,0xFFFFFF
 }}}
    在u-boot正常启动后，从tftp服务器下载vmlinux：
 {{{
