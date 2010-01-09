@@ -1,5 +1,5 @@
+#summary 如何使用NFS作为根文件系统
 #labels LDD6410,S3C6410,rootfs,nfs
-#如何使用NFS作为根文件系统
 
 = 内核配置 =
 
