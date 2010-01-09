@@ -1,0 +1,34 @@
+Index: include/configs/smdk2410.h
+===================================================================
+--- include/configs/smdk2410.h	(revision 89)
++++ include/configs/smdk2410.h	(working copy)
+@@ -44,12 +44,16 @@
+ #define USE_920T_MMU		1
+ #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
+ 
++#define virt_to_phys(x)	(x)
+ /*
+  * Size of malloc() pool
+  */
+ #define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+ #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+ 
++#define CONFIG_ZIMAGE_BOOT
++#define CONFIG_IMAGE_BOOT
++
+ /*
+  * Hardware drivers
+  */
+Index: board/smdk2410/smdk2410.c
+===================================================================
+--- board/smdk2410/smdk2410.c	(revision 89)
++++ board/smdk2410/smdk2410.c	(working copy)
+@@ -106,7 +106,7 @@
+ 	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;
+ 
+ 	/* adress of boot parameters */
+-	gd->bd->bi_boot_params = 0x30000100;
++	gd->bd->bi_boot_params = 0xC0000100;
+ 
+ 	icache_enable();
+ 	dcache_enable();
