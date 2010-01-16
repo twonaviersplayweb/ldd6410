@@ -451,3 +451,237 @@ Segmentation fault
 }}}
 详见bug:
 http://sourceforge.net/tracker/?func=detail&aid=2897905&group_id=85554&atid=576533
+我们使用strace去寻找死在哪个系统调用：
+{{{
+# strace modprobe hello
+execve("/sbin/modprobe", ["modprobe", "hello"], [/* 7 vars */]) = 0
+uname({sys="Linux", node="lihacker", ...}) = 0
+brk(0)                                  = 0x15d000
+brk(0x15dd02)                           = 0x15dd02
+set_tls(0x15d4a0, 0x1573c0, 0, 0x1, 0x15d4a0) = 0
+brk(0x17ed02)                           = 0x17ed02
+brk(0x17f000)                           = 0x17f000
+getuid32()                              = 0
+chdir("/lib/modules")                   = 0
+uname({sys="Linux", node="lihacker", ...}) = 0
+chdir("2.6.31.6-svn79")                 = 0
+open("/proc/modules", O_RDONLY)         = 3
+fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40000000
+read(3, ""..., 1024)                    = 0
+close(3)                                = 0
+munmap(0x40000000, 4096)                = 0
+lstat64("/etc/modprobe.conf", 0xbe846880) = -1 ENOENT (No such file or directory)
+lstat64("/etc/modprobe.d", 0xbe846880)  = -1 ENOENT (No such file or directory)
+open("modules.dep", O_RDONLY)           = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=17141, ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40001000
+read(3, "/lib/modules/2.6.31.6-svn79/kerne"..., 1024) = 1024
+read(3, "nel/net/netfilter/x_tables.ko\n/li"..., 1024) = 1024
+read(3, "/lib/modules/2.6.31.6-svn79/kerne"..., 1024) = 1024
+read(3, "/net/netfilter/xt_esp.ko: /lib/mo"..., 1024) = 1024
+read(3, "ables.ko /lib/modules/2.6.31.6-sv"..., 1024) = 1024
+read(3, "es/2.6.31.6-svn79/kernel/net/netf"..., 1024) = 1024
+read(3, ".6-svn79/kernel/net/netfilter/nf_"..., 1024) = 1024
+read(3, "b/modules/2.6.31.6-svn79/kernel/n"..., 1024) = 1024
+read(3, "etfilter/nf_conntrack_ipv4.ko /li"..., 1024) = 1024
+read(3, ".6.31.6-svn79/kernel/net/netfilte"..., 1024) = 1024
+read(3, "defrag_ipv4.ko\n/lib/modules/2.6.3"..., 1024) = 1024
+read(3, "tfilter/nf_conntrack_ipv4.ko /lib"..., 1024) = 1024
+read(3, ".6-svn79/kernel/net/ipv4/netfilte"..., 1024) = 1024
+read(3, "1.6-svn79/kernel/net/netfilter/x_"..., 1024) = 1024
+read(3, "ib/modules/2.6.31.6-svn79/kernel/"..., 1024) = 1024
+read(3, "ib/modules/2.6.31.6-svn79/kernel/"..., 1024) = 1024
+read(3, "o:\n/lib/modules/2.6.31.6-svn79/ke"..., 1024) = 757
+close(3)                                = 0
+munmap(0x40001000, 4096)                = 0
+open("/lib/modules/2.6.31.6-svn79/kernel/drivers/char/driver_examples/hello.ko", O_RDONLY) = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=2425, ...}) = 0
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\1\0(\0\1\0\0\0\0\0\0\0\0\0\0\0\210"..., 3072) = 2425
+read(3, ""..., 647)                     = 0
+close(3)                                = 0
+init_module(0x15e300, 2425, ""Unable to handle kernel paging request at virtual address bf000000
+pgd = c0620000
+[bf000000] *pgd=00000000
+Internal error: Oops: 807 [#1]
+Modules linked in:
+CPU: 0    Not tainted  (2.6.31.6-svn79 #21)
+PC is at __memzero+0x24/0x80
+LR is at 0x0
+pc : [<c0107404>]    lr : [<00000000>]    psr: 20000013
+sp : c069ff0c  ip : 00000000  fp : 00000005
+r10: c2807230  r9 : c2807000  r8 : c2807388
+r7 : 00000004  r6 : c2807168  r5 : 00000012  r4 : bf000000
+r3 : 00000000  r2 : 00000000  r1 : 00000464  r0 : bf000000
+Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+Control: 0000317f  Table: c0620000  DAC: 00000015
+Process modprobe (pid: 796, stack limit = 0xc069e270)
+Stack: (0xc069ff0c to 0xc06a0000)
+ff00:                            c005fba0 00000000 00000000 c2807518 c2807608 
+ff20: c28072dc c1139240 c28078a0 00000010 00000000 c2807388 00000000 c2807630 
+ff40: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+ff60: 00000000 00000979 0015e2f0 00000000 0015e300 c002bf48 c069e000 00000000 
+ff80: 00000000 c0060878 be846958 c002dbe0 00000000 00000979 0015e2f0 0015dfa8 
+ffa0: 00000080 c002bf0c 00000979 0015e2f0 0015e300 00000979 0015e2f0 00000000 
+ffc0: 00000979 0015e2f0 0015dfa8 00000080 0015e2a0 0015dfbc 00000001 00000000 
+ffe0: be846958 be846948 000177f8 00009350 20000010 0015e300 ebff1fc9 e3500000 
+[<c0107404>] (__memzero+0x24/0x80) from [<00000000>] (0x0)
+Code: e52de004 e1a0c002 e1a0e002 e2511040 (a8a0500c) 
+---[ end trace 1e19dcbb1e19dcba ]---
+ <unfinished ...>
++++ killed by SIGSEGV +++
+}}}
+很明显，死在内核的linux-2.6.31/kernel/module.c的init_module()函数中,加上几个printk:
+{{{
+2453 SYSCALL_DEFINE3(init_module, void __user *, umod,
+2454         unsigned long, len, const char __user *, uargs)
+2455 {
+2456     struct module *mod;
+2457     int ret = 0;
+2458 
+2459     printk("%s %d\n", __func__, __LINE__);
+2460 
+2461     /* Must have permission */
+2462     if (!capable(CAP_SYS_MODULE) || modules_disabled)
+2463         return -EPERM;
+2464 
+2465     +printk("%s %d\n", __func__, __LINE__);
+2466     
+2467     /* Only one module load at a time, please */
+2468     if (mutex_lock_interruptible(&module_mutex) != 0)
+2469         return -EINTR;
+2470 
+2471     +printk("%s %d\n", __func__, __LINE__);
+2472     
+2473     /* Do all the hard work */
+2474     mod = load_module(umod, len, uargs);
+2475     if (IS_ERR(mod)) {
+2476         mutex_unlock(&module_mutex);
+2477         return PTR_ERR(mod);
+2478     }
+2479 
+2480     +printk("%s %d\n", __func__, __LINE__);
+2481     
+}}}
+再次运行:
+{{{
+# modprobe hello
+sys_init_module 2459
+sys_init_module 2465
+sys_init_module 2471
+Unable to handle kernel paging request at virtual address bf000000
+pgd = c05f0000
+[bf000000] *pgd=00000000
+Internal error: Oops: 807 [#1]
+Modules linked in:
+}}}
+从打印信息可以看出，panic发生在load_module函数，既然"sys_init_module 2471"被打印而"sys_init_module 2480"未打印。
+继续跟进load_module()，直到最后发现内核崩溃在`memset(ptr, 0, mod->core_size);`：
+{{{
+static noinline struct module *load_module(void __user *umod,
+                   unsigned long len,
+                   const char __user *uargs)
+{
+...
+     ptr = module_alloc_update_bounds(mod->core_size);
+...
+     kmemleak_not_leak(ptr);
+...
+     memset(ptr, 0, mod->core_size);
+}}}
+一路跟踪源代码，发现ARM的Kernel会将模块的内存申请在3G-16M到3G的区域，而skyeye在内核空间处理3G以下地址的时候，会发生错误:
+{{{
+"Unable to handle kernel paging request at virtual address bf000000"
+}}}
+因此，workaround掉这个bug:
+{{{
+Index: arch/arm/kernel/module.c
+===================================================================
+--- arch/arm/kernel/module.c	(revision 87)
++++ arch/arm/kernel/module.c	(working copy)
+@@ -38,7 +38,7 @@
+ #ifdef CONFIG_MMU
+ void *module_alloc(unsigned long size)
+ {
+-	struct vm_struct *area;
++	/*struct vm_struct *area;
+ 
+ 	size = PAGE_ALIGN(size);
+ 	if (!size)
+@@ -49,6 +49,9 @@
+ 		return NULL;
+ 
+ 	return __vmalloc_area(area, GFP_KERNEL, PAGE_KERNEL_EXEC);
++*/
++
++	return size == 0 ? NULL : kmalloc(size, GFP_KERNEL);
+ }
+ #else /* CONFIG_MMU */
+ void *module_alloc(unsigned long size)
+@@ -59,7 +62,7 @@
+ 
+ void module_free(struct module *module, void *region)
+ {
+-	vfree(region);
++	kfree(region);
+ }
+ 
+ int module_frob_arch_sections(Elf_Ehdr *hdr,
+}}}
+由于此workaround使用了kmalloc，如果内核模块很大，kmalloc申请的内存不够存放，则可以修改：
+include/linux/slab.h中的KMALLOC_SHIFT_HIGH宏定义。另外，此workaround成立的条件是mem=32M或小于32M。
+现在我们可以自由地加载模块了，看看结果：
+{{{
+加载模块：
+# modprobe hello
+Hello World enter
+# modprobe globalmem  globalmem_major=250
+# modprobe globalfifo globalfifo_major=251
+
+查看加载的模块:
+# lsmod
+    Not tainted
+globalmem 3356 0 - Live 0xc0f66000
+hello 1188 0 - Live 0xc1128000
+globalfifo 4292 0 - Live 0xc182a000
+
+查看设备：
+# cat /proc/devices 
+Character devices:
+  1 mem
+  2 pty
+  3 ttyp
+  4 /dev/vc/0
+  4 tty
+  4 ttyS
+  5 /dev/tty
+  5 /dev/console
+  5 /dev/ptmx
+  7 vcs
+ 10 misc
+ 13 input
+ 21 sg
+ 29 fb
+128 ptm
+136 pts
+204 s3c2410_serial
+250 globalmem
+251 globalfifo
+
+建立结点：
+# mknod /dev/globalmem c 250 0
+# mknod /dev/globalfifo c 251 0
+# 
+读写设备文件：
+# echo "hello, cisco" > /dev/globalmem
+written 13 bytes(s) from 0
+# cat /dev/globalmem 
+read 4096 bytes(s) from 0
+hello, cisco
+
+# cat /dev/globalfifo &
+# echo "hello,cisco, I love you" > /dev/globalfifo 
+written 24 bytes(s),current_len:24
+# read 24 bytes(s),current_len:0
+hello,cisco, I love you
+}}}
