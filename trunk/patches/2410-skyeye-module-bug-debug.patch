@@ -1,0 +1,221 @@
+Index: kernel/module.c
+===================================================================
+--- kernel/module.c	(revision 87)
++++ kernel/module.c	(working copy)
+@@ -1957,7 +1957,7 @@
+ 	mm_segment_t old_fs;
+ 	struct module *iter;
+ 
+-	DEBUGP("load_module: umod=%p, len=%lu, uargs=%p\n",
++	printk("load_module: umod=%p, len=%lu, uargs=%p\n",
+ 	       umod, len, uargs);
+ 	if (len < sizeof(*hdr))
+ 		return ERR_PTR(-ENOEXEC);
+@@ -1967,17 +1967,22 @@
+ 	if (len > 64 * 1024 * 1024 || (hdr = vmalloc(len)) == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/*
+ 	 * Make sure the module text or data access never generates any page
+ 	 * fault.
+ 	 */
+ 	vmalloc_sync_all();
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	if (copy_from_user(hdr, umod, len) != 0) {
+ 		err = -EFAULT;
+ 		goto free_hdr;
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	/* Sanity checks against insmoding binaries or wrong arch,
+            weird elf version */
+ 	if (memcmp(hdr->e_ident, ELFMAG, SELFMAG) != 0
+@@ -1988,6 +1993,8 @@
+ 		goto free_hdr;
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	if (len < hdr->e_shoff + hdr->e_shnum * sizeof(Elf_Shdr))
+ 		goto truncated;
+ 
+@@ -2018,6 +2025,8 @@
+ #endif
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	modindex = find_sec(hdr, sechdrs, secstrings,
+ 			    ".gnu.linkonce.this_module");
+ 	if (!modindex) {
+@@ -2039,6 +2048,7 @@
+ 	infoindex = find_sec(hdr, sechdrs, secstrings, ".modinfo");
+ 	pcpuindex = find_pcpusec(hdr, sechdrs, secstrings);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/* Don't keep modinfo and version sections. */
+ 	sechdrs[infoindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
+ 	sechdrs[versindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
+@@ -2075,6 +2085,7 @@
+ 		       mod->name);
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/* Now copy in args */
+ 	args = strndup_user(uargs, ~0UL >> 1);
+ 	if (IS_ERR(args)) {
+@@ -2082,11 +2093,13 @@
+ 		goto free_hdr;
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	if (find_module(mod->name)) {
+ 		err = -EEXIST;
+ 		goto free_mod;
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	mod->state = MODULE_STATE_COMING;
+ 
+ 	/* Allow arches to frob section contents and sizes.  */
+@@ -2094,6 +2107,7 @@
+ 	if (err < 0)
+ 		goto free_mod;
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	if (pcpuindex) {
+ 		/* We have a special allocation for this section. */
+ 		percpu = percpu_modalloc(sechdrs[pcpuindex].sh_size,
+@@ -2107,11 +2121,13 @@
+ 		mod->percpu = percpu;
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/* Determine total sizes, and put offsets in sh_entsize.  For now
+ 	   this is done generically; there doesn't appear to be any
+ 	   special cases for the architectures. */
+ 	layout_sections(mod, hdr, sechdrs, secstrings);
+ 
++	printk("%s %d mpd->core_size:%d\n", __func__, __LINE__, mod->core_size);
+ 	/* Do the allocs. */
+ 	ptr = module_alloc_update_bounds(mod->core_size);
+ 	/*
+@@ -2119,14 +2135,18 @@
+ 	 * which is inside the block. Just mark it as not being a
+ 	 * leak.
+ 	 */
++	printk("%s %d ptr:%08x\n", __func__, __LINE__, ptr);
+ 	kmemleak_not_leak(ptr);
+ 	if (!ptr) {
+ 		err = -ENOMEM;
+ 		goto free_percpu;
+ 	}
++	printk("%s %d ptr:%08x\n", __func__, __LINE__, ptr);
+ 	memset(ptr, 0, mod->core_size);
++	printk("%s %d\n", __func__, __LINE__);
+ 	mod->module_core = ptr;
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	ptr = module_alloc_update_bounds(mod->init_size);
+ 	/*
+ 	 * The pointer to this block is stored in the module structure
+@@ -2178,6 +2198,7 @@
+ 	/* Now we've moved module, initialize linked lists, etc. */
+ 	module_unload_init(mod);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/* add kobject, so we can reference it. */
+ 	err = mod_sysfs_init(mod);
+ 	if (err)
+@@ -2201,6 +2222,7 @@
+ 	/* Set up MODINFO_ATTR fields */
+ 	setup_modinfo(mod, sechdrs, infoindex);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/* Fix up syms, so that st_value is a pointer to location. */
+ 	err = simplify_symbols(sechdrs, symindex, strtab, versindex, pcpuindex,
+ 			       mod);
+@@ -2326,6 +2348,7 @@
+ 
+ 	add_kallsyms(mod, sechdrs, symindex, strindex, secstrings);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	if (!mod->taints) {
+ 		struct _ddebug *debug;
+ 		unsigned int num_debug;
+@@ -2336,6 +2359,7 @@
+ 			dynamic_debug_setup(debug, num_debug);
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	err = module_finalize(hdr, sechdrs, mod);
+ 	if (err < 0)
+ 		goto cleanup;
+@@ -2356,6 +2380,7 @@
+ 	flush_icache_range((unsigned long)mod->module_core,
+ 			   (unsigned long)mod->module_core + mod->core_size);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	set_fs(old_fs);
+ 
+ 	mod->args = args;
+@@ -2402,6 +2427,7 @@
+ 
+ 	trace_kernel_module_load(mod);
+ 
++	printk("%s %d\n", __func__, __LINE__);
+ 	/* Done! */
+ 	return mod;
+ 
+@@ -2456,14 +2482,20 @@
+ 	struct module *mod;
+ 	int ret = 0;
+ 
++	printk("%s %d\n", __func__, __LINE__);
++
+ 	/* Must have permission */
+ 	if (!capable(CAP_SYS_MODULE) || modules_disabled)
+ 		return -EPERM;
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	/* Only one module load at a time, please */
+ 	if (mutex_lock_interruptible(&module_mutex) != 0)
+ 		return -EINTR;
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	/* Do all the hard work */
+ 	mod = load_module(umod, len, uargs);
+ 	if (IS_ERR(mod)) {
+@@ -2471,12 +2503,16 @@
+ 		return PTR_ERR(mod);
+ 	}
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	/* Drop lock so they can recurse */
+ 	mutex_unlock(&module_mutex);
+ 
+ 	blocking_notifier_call_chain(&module_notify_list,
+ 			MODULE_STATE_COMING, mod);
+ 
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	do_mod_ctors(mod);
+ 	/* Start the module */
+ 	if (mod->init != NULL)
+@@ -2495,6 +2531,9 @@
+ 		wake_up(&module_wq);
+ 		return ret;
+ 	}
++	
++	printk("%s %d\n", __func__, __LINE__);
++	
+ 	if (ret > 0) {
+ 		printk(KERN_WARNING
+ "%s: '%s'->init suspiciously returned %d, it should follow 0/-E convention\n"
