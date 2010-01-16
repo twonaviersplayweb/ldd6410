@@ -389,3 +389,65 @@ initrd/lib/modules$ tree
 }}}
 
 = 运行 =
+启动Linux，对于skyeye为：
+{{{
+sudo skyeye -e vmlinux -c skyeye-standalone.conf
+...
+Welcome to
+     _      _____      __   __    _      _
+    / \    /  __ \    /  \_/  \  | |    |_|                 
+   / _ \   | |  | |  / /\   /\ \ | |     _ ____  _   _  _  _ 
+  / /_\ \  | |__| | / /  \_/  \ \| |    | |  _ \| | | |\ \/ /
+ / /___\ \ | |__\ \ | |       | || |___ | | |_| | |_| |/    \
+/_/	\_\| |   \_\|_|       |_||_____||_|_| |_|\____|\_/\_/
+	   
+ARMLinux for Lihacker LDD6410
+
+For further information please check:
+http://www.lihacker.com/
+http://www.linuxdriver.cn/
+For technical support, please subscribe mail list linuxdriver@googlegroups.com and post there.
+The url is http://groups.google.com/group/linuxdriver.
+# 
+}}}
+加载模块：
+{{{
+modprobe hello
+modprobe globalmem  globalmem_major=250
+modprobe globalfifo globalfifo_major=251
+}}}
+skyeye对insmod的支持有些问题，加载模块时会出现：
+{{{
+# modprobe hello
+Unable to handle kernel paging request at virtual address bf000000
+pgd = c05f0000
+[bf000000] *pgd=00000000
+Internal error: Oops: 807 [#1]
+Modules linked in:
+CPU: 0    Not tainted  (2.6.31.6-svn79 #21)
+PC is at __memzero+0x24/0x80
+LR is at 0x0
+pc : [<c0107404>]    lr : [<00000000>]    psr: 20000013
+sp : c182bf0c  ip : 00000000  fp : 00000005
+r10: c2807230  r9 : c2807000  r8 : c2807388
+r7 : 00000004  r6 : c2807168  r5 : 00000012  r4 : bf000000
+r3 : 00000000  r2 : 00000000  r1 : 00000464  r0 : bf000000
+Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+Control: 0000317f  Table: c05f0000  DAC: 00000015
+Process modprobe (pid: 795, stack limit = 0xc182a270)
+Stack: (0xc182bf0c to 0xc182c000)
+bf00:                            c005fba0 00000979 00000000 c2807518 c2807608 
+bf20: c28072dc c1139e60 c28078a0 00000010 000000c5 c2807388 c182a000 c2807630 
+bf40: 00000000 c008c178 00000171 00000000 0015ec79 00000287 00000001 00000008 
+bf60: 00000000 00000979 0015e2f0 00000000 0015e300 c002bf48 c182a000 00000000 
+bf80: 00000000 c0060878 c1c1a2c0 c1c2f3a0 00000003 00000979 0015e2f0 0015dfa8 
+bfa0: 00000080 c002bda0 00000979 0015e2f0 0015e300 00000979 0015e2f0 00000000 
+bfc0: 00000979 0015e2f0 0015dfa8 00000080 0015e2a0 0015dfbc 00000001 00000000 
+bfe0: bea65958 bea65948 000177f8 00009350 20000010 0015e300 ab081000 11000006 
+[<c0107404>] (__memzero+0x24/0x80) from [<00000000>] (0x0)
+Code: e52de004 e1a0c002 e1a0e002 e2511040 (a8a0500c) 
+---[ end trace 1e19dcbb1e19dcba ]---
+Segmentation fault
+}}}
+详见bug:
+http://sourceforge.net/tracker/?func=detail&aid=2897905&group_id=85554&atid=576533
