@@ -1,0 +1,391 @@
+#summary 将helloworld、globalmem、globalfifo放入内核代码中
+#labels helloworld,globalmem,globalfifo,ldd6410
+
+= 添加代码、Kconfig和Makefile =
+
+在linux-2.6.31/drivers/char目录下建立子目录：
+{{{
+bhsong@bhsong-laptop:~/develop/svn/ldd6410/linux-2.6.31/drivers/char$ mkdir driver_examples
+}}}
+将三个驱动hello.c、globalmem.c、globalfifo.c拷入driver_examples目录：
+{{{
+cd driver_examples/
+cp ../../../../training/kernel/drivers/hello/hello.c ./
+cp ../../../../training/kernel/drivers/globalmem/globalmem.c ./
+cp ../../../../training/kernel/drivers/globalmem/globalfifo.c ./
+}}}
+修改drivers/char下面的Kconfig和Makefile导入driver_examples目录：
+  * 在drivers/char/Kconfig中添加：
+{{{
+source "drivers/char/driver_examples/Kconfig"
+}}}
+  * 添加drivers/char/driver_examples/Kconfig文件：
+{{{
+#
+# driver examples configuration
+#
+
+menuconfig DRIVER_EXAMPLE
+    tristate "driver examples in 'Explain Linux Device Drivers in detail'"
+    ---help---
+      say Yes to build-in hello world, globalmem, globalfifo, say M to get 
+      those kernel modules
+
+if DRIVER_EXAMPLE
+
+config HELLO_WORLD
+    tristate "Hello World"
+    ---help---
+      To compile this driver as a module, choose M here; the module will be
+      called hello.mem
+
+config GLOBALMEM
+    tristate "globalmem"
+    ---help---
+      To  compile this driver as a module, choose M here; the module will be
+      called globalmem.
+
+config GLOBALFIFO
+    tristate "globalfifo"
+    ---help---
+      To  compile this driver as a module, choose M here; the module will be
+      called globalfifo.
+
+endif # DRIVER_EXAMPLE
+}}}
+这将形成如下菜单：
+{{{
+ driver examples in 'Explain Linux Device Drivers in detail' ─────────────────────────────┐
+  │  Arrow keys navigate the menu.  <Enter> selects submenus --->.  Highlighted letters are hotkeys.  Pressing <Y>        │  
+  │  includes, <N> excludes, <M> modularizes features.  Press <Esc><Esc> to exit, <?> for Help, </> for Search.  Legend:  │  
+  │  [*] built-in  [ ] excluded  <M> module  < > module capable                                                           │  
+  │                                                                                                                       │  
+  │ ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │  
+  │ │                      --- driver examples in 'Explain Linux Device Drivers in detail'                              │ │  
+  │ │                      < >   Hello World (NEW)                                                                      │ │  
+  │ │                      < >   globalmem (NEW)                                                                        │ │  
+  │ │                      < >   globalfifo (NEW)                                                                       │ │  
+  │ │                                                                                                                   │ │  
+  │ │                                                                                                                   │ │  
+  │ │                                                        
+}}}
+  * 在drivers/char/Makefile中添加：
+{{{
+obj-$(CONFIG_DRIVER_EXAMPLE)        += driver_examples/
+}}}
+  * 添加drivers/char/driver_examples/Makefile文件：
+{{{
+obj-$(CONFIG_HELLO_WORLD)       += hello.o
+obj-$(CONFIG_GLOBALMEM)         += globalmem.o
+obj-$(CONFIG_GLOBALFIFO)        += globalfifo.o
+}}}
+相关的Kconfig和Makefile patch如下：
+{{{
+Index: drivers/char/Kconfig
+===================================================================
+--- drivers/char/Kconfig	(revision 87)
++++ drivers/char/Kconfig	(working copy)Index: drivers/char/driver_examples/Makefile
+===================================================================
+--- drivers/char/driver_examples/Makefile	(revision 0)
++++ drivers/char/driver_examples/Makefile	(revision 0)
+@@ -0,0 +1,3 @@
++obj-$(CONFIG_HELLO_WORLD)		+= hello.o
++obj-$(CONFIG_GLOBALMEM)		+= globalmem.o
++obj-$(CONFIG_GLOBALFIFO)		+= globalfifo.o
+@@ -1110,5 +1110,7 @@
+ 
+ source "drivers/s390/char/Kconfig"
+ 
++source "drivers/char/driver_examples/Kconfig"
++
+ endmenu
+ 
+Index: drivers/char/Makefile
+===================================================================
+--- drivers/char/Makefile	(revision 87)
++++ drivers/char/Makefile	(working copy)
+@@ -111,6 +111,8 @@
+ obj-$(CONFIG_JS_RTC)		+= js-rtc.o
+ js-rtc-y = rtc.o
+ 
++obj-$(CONFIG_DRIVER_EXAMPLE)		+= driver_examples/
++
+ # Files generated that shall be removed upon make clean
+ clean-files := consolemap_deftbl.c defkeymap.c
+ 
+Index: drivers/char/driver_examples/Kconfig
+===================================================================
+--- drivers/char/driver_examples/Kconfig	(revision 0)
++++ drivers/char/driver_examples/Kconfig	(revision 0)
+@@ -0,0 +1,31 @@
++#
++# driver examples configuration
++#
++
++menuconfig DRIVER_EXAMPLE
++	tristate "driver examples in 'Explain Linux Device Drivers in detail'"
++	---help---
++	  say Yes to build-in hello world, globalmem, globalfifo, say M to get
++	  those kernel modules
++
++if DRIVER_EXAMPLE
++
++config HELLO_WORLD
++	tristate "Hello World"
++	---help---
++	  To compile this driver as a module, choose M here; the module will be
++	  called hello.
++
++config GLOBALMEM
++	tristate "globalmem"
++	---help---
++	  To  compile this driver as a module, choose M here; the module will be
++	  called globalmem.
++
++config GLOBALFIFO
++	tristate "globalfifo"
++	---help---
++	  To  compile this driver as a module, choose M here; the module will be
++	  called globalfifo.
++
++endif # DRIVER_EXAMPLE
++Index: drivers/char/Kconfig
+===================================================================
+--- drivers/char/Kconfig	(revision 87)
++++ drivers/char/Kconfig	(working copy)
+@@ -1110,5 +1110,7 @@
+ 
+ source "drivers/s390/char/Kconfig"
+ 
++source "drivers/char/driver_examples/Kconfig"
++
+ endmenu
+ 
+Index: drivers/char/Makefile
+===================================================================
+--- drivers/char/Makefile	(revision 87)
++++ drivers/char/Makefile	(working copy)
+@@ -111,6 +111,8 @@
+ obj-$(CONFIG_JS_RTC)		+= js-rtc.o
+ js-rtc-y = rtc.o
+ 
++obj-$(CONFIG_DRIVER_EXAMPLE)		+= driver_examples/
++
+ # Files generated that shall be removed upon make clean
+ clean-files := consolemap_deftbl.c defkeymap.c
+ 
+Index: drivers/char/driver_examples/Kconfig
+===================================================================
+--- drivers/char/driver_examples/Kconfig	(revision 0)
++++ drivers/char/driver_examples/Kconfig	(revision 0)
+@@ -0,0 +1,31 @@
++#
++# driver examples configuration
++#
++
++menuconfig DRIVER_EXAMPLE
++	tristate "driver examples in 'Explain Linux Device Drivers in detail'"
++	---help---
++	  say Yes to build-in hello world, globalmem, globalfifo, say M to get
++	  those kernel modules
++
++if DRIVER_EXAMPLE
++
++config HELLO_WORLD
++	tristate "Hello World"
++	---help---
++	  To compile this driver as a module, choose M here; the module will be
++	  called hello.
++
++config GLOBALMEM
++	tristate "globalmem"
++	---help---
++	  To  compile this driver as a module, choose M here; the module will be
++	  called globalmem.
++
++config GLOBALFIFO
++	tristate "globalfifo"
++	---help---
++	  To  compile this driver as a module, choose M here; the module will be
++	  called globalfifo.
++
++endif # DRIVER_EXAMPLE
+Index: drivers/char/driver_examples/Makefile
+===================================================================
+--- drivers/char/driver_examples/Makefile	(revision 0)
++++ drivers/char/driver_examples/Makefile	(revision 0)
+@@ -0,0 +1,3 @@
++obj-$(CONFIG_HELLO_WORLD)		+= hello.o
++obj-$(CONFIG_GLOBALMEM)		+= globalmem.o
++obj-$(CONFIG_GLOBALFIFO)		+= globalfifo.o
+}}}
+
+= 编译和安装 =
+选中三个模块：
+{{{
+─── driver examples in 'Explain Linux Device Drivers in detail' ─────────────────────────────┐
+  │  Arrow keys navigate the menu.  <Enter> selects submenus --->.  Highlighted letters are hotkeys.  Pressing <Y>        │  
+  │  includes, <N> excludes, <M> modularizes features.  Press <Esc><Esc> to exit, <?> for Help, </> for Search.  Legend:  │  
+  │  [*] built-in  [ ] excluded  <M> module  < > module capable                                                           │  
+  │                                                                                                                       │  
+  │ ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │  
+  │ │                      --- driver examples in 'Explain Linux Device Drivers in detail'                              │ │  
+  │ │                      <M>   Hello World                                                                            │ │  
+  │ │                      <M>   globalmem                                                                              │ │  
+  │ │                      <M>   globalfifo                                                                             │ │  
+  │ │                                                                                                                   │ │ 
+}}}
+在linux-2.6.31下运行：
+{{{
+bhsong@bhsong-laptop:~/develop/svn/ldd6410/linux-2.6.31$ make modules
+}}}
+以loopback方式mount根文件系统，譬如对于skyeye的initrd.img运行如下命令：
+{{{
+...skyeye/training-simulation$ sudo mount -o loop initrd.img initrd
+}}}
+将所有模块安装到根文件系统：
+{{{
+make INSTALL_MOD_PATH=/home/bhsong/develop/training/skyeye/training-simulation/initrd modules_install
+}}}
+请根据你的路径，正确的设置INSTALL_MOD_PATH。安装之后，所有模块以及模块间依赖关系进入根文件系统：
+{{{
+initrd/lib/modules$ tree
+.
+`-- 2.6.31.6-svn79
+    |-- build -> /home/bhsong/develop/svn/ldd6410/linux-2.6.31
+    |-- kernel
+    |   |-- drivers
+    |   |   |-- cdrom
+    |   |   |   `-- cdrom.ko
+    |   |   |-- char
+    |   |   |   `-- driver_examples
+    |   |   |       |-- globalfifo.ko
+    |   |   |       |-- globalmem.ko
+    |   |   |       `-- hello.ko
+    |   |   |-- input
+    |   |   |   `-- gameport
+    |   |   |       `-- gameport.ko
+    |   |   `-- scsi
+    |   |       |-- ch.ko
+    |   |       |-- scsi_wait_scan.ko
+    |   |       |-- sr_mod.ko
+    |   |       `-- st.ko
+    |   |-- lib
+    |   |   |-- ts_bm.ko
+    |   |   |-- ts_fsm.ko
+    |   |   `-- ts_kmp.ko
+    |   `-- net
+    |       |-- ipv4
+    |       |   |-- netfilter
+    |       |   |   |-- arp_tables.ko
+    |       |   |   |-- arpt_mangle.ko
+    |       |   |   |-- arptable_filter.ko
+    |       |   |   |-- ip_queue.ko
+    |       |   |   |-- ip_tables.ko
+    |       |   |   |-- ipt_ECN.ko
+    |       |   |   |-- ipt_LOG.ko
+    |       |   |   |-- ipt_MASQUERADE.ko
+    |       |   |   |-- ipt_NETMAP.ko
+    |       |   |   |-- ipt_REDIRECT.ko
+    |       |   |   |-- ipt_REJECT.ko
+    |       |   |   |-- ipt_ULOG.ko
+    |       |   |   |-- ipt_addrtype.ko
+    |       |   |   |-- ipt_ah.ko
+    |       |   |   |-- ipt_ecn.ko
+    |       |   |   |-- iptable_filter.ko
+    |       |   |   |-- iptable_mangle.ko
+    |       |   |   |-- iptable_nat.ko
+    |       |   |   |-- iptable_raw.ko
+    |       |   |   |-- nf_conntrack_ipv4.ko
+    |       |   |   |-- nf_defrag_ipv4.ko
+    |       |   |   |-- nf_nat.ko
+    |       |   |   |-- nf_nat_amanda.ko
+    |       |   |   |-- nf_nat_ftp.ko
+    |       |   |   |-- nf_nat_h323.ko
+    |       |   |   |-- nf_nat_irc.ko
+    |       |   |   |-- nf_nat_pptp.ko
+    |       |   |   |-- nf_nat_proto_gre.ko
+    |       |   |   |-- nf_nat_proto_udplite.ko
+    |       |   |   |-- nf_nat_sip.ko
+    |       |   |   |-- nf_nat_snmp_basic.ko
+    |       |   |   `-- nf_nat_tftp.ko
+    |       |   |-- tcp_bic.ko
+    |       |   |-- tcp_htcp.ko
+    |       |   `-- tcp_westwood.ko
+    |       `-- netfilter
+    |           |-- ipvs
+    |           |   `-- ip_vs.ko
+    |           |-- nf_conntrack.ko
+    |           |-- nf_conntrack_amanda.ko
+    |           |-- nf_conntrack_ftp.ko
+    |           |-- nf_conntrack_h323.ko
+    |           |-- nf_conntrack_irc.ko
+    |           |-- nf_conntrack_netbios_ns.ko
+    |           |-- nf_conntrack_netlink.ko
+    |           |-- nf_conntrack_pptp.ko
+    |           |-- nf_conntrack_proto_gre.ko
+    |           |-- nf_conntrack_proto_udplite.ko
+    |           |-- nf_conntrack_sip.ko
+    |           |-- nf_conntrack_tftp.ko
+    |           |-- nfnetlink.ko
+    |           |-- nfnetlink_log.ko
+    |           |-- nfnetlink_queue.ko
+    |           |-- x_tables.ko
+    |           |-- xt_CLASSIFY.ko
+    |           |-- xt_CONNMARK.ko
+    |           |-- xt_HL.ko
+    |           |-- xt_MARK.ko
+    |           |-- xt_NFLOG.ko
+    |           |-- xt_NFQUEUE.ko
+    |           |-- xt_RATEEST.ko
+    |           |-- xt_TCPMSS.ko
+    |           |-- xt_cluster.ko
+    |           |-- xt_comment.ko
+    |           |-- xt_connbytes.ko
+    |           |-- xt_connlimit.ko
+    |           |-- xt_connmark.ko
+    |           |-- xt_conntrack.ko
+    |           |-- xt_dccp.ko
+    |           |-- xt_dscp.ko
+    |           |-- xt_esp.ko
+    |           |-- xt_hashlimit.ko
+    |           |-- xt_helper.ko
+    |           |-- xt_hl.ko
+    |           |-- xt_iprange.ko
+    |           |-- xt_length.ko
+    |           |-- xt_limit.ko
+    |           |-- xt_mac.ko
+    |           |-- xt_mark.ko
+    |           |-- xt_multiport.ko
+    |           |-- xt_owner.ko
+    |           |-- xt_pkttype.ko
+    |           |-- xt_policy.ko
+    |           |-- xt_quota.ko
+    |           |-- xt_rateest.ko
+    |           |-- xt_realm.ko
+    |           |-- xt_recent.ko
+    |           |-- xt_state.ko
+    |           |-- xt_statistic.ko
+    |           |-- xt_string.ko
+    |           |-- xt_tcpmss.ko
+    |           |-- xt_tcpudp.ko
+    |           |-- xt_time.ko
+    |           `-- xt_u32.ko
+    |-- modules.alias
+    |-- modules.ccwmap
+    |-- modules.dep
+    |-- modules.ieee1394map
+    |-- modules.inputmap
+    |-- modules.isapnpmap
+    |-- modules.ofmap
+    |-- modules.order
+    |-- modules.pcimap
+    |-- modules.seriomap
+    |-- modules.symbols
+    |-- modules.usbmap
+    `-- source -> /home/bhsong/develop/svn/ldd6410/linux-2.6.31
+
+17 directories, 116 files
+}}}
+
+= 运行 =
