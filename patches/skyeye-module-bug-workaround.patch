@@ -1,0 +1,32 @@
+Index: arch/arm/kernel/module.c
+===================================================================
+--- arch/arm/kernel/module.c	(revision 87)
++++ arch/arm/kernel/module.c	(working copy)
+@@ -38,7 +38,7 @@
+ #ifdef CONFIG_MMU
+ void *module_alloc(unsigned long size)
+ {
+-	struct vm_struct *area;
++	/*struct vm_struct *area;
+ 
+ 	size = PAGE_ALIGN(size);
+ 	if (!size)
+@@ -49,6 +49,9 @@
+ 		return NULL;
+ 
+ 	return __vmalloc_area(area, GFP_KERNEL, PAGE_KERNEL_EXEC);
++*/
++
++	return size == 0 ? NULL : kmalloc(size, GFP_KERNEL);
+ }
+ #else /* CONFIG_MMU */
+ void *module_alloc(unsigned long size)
+@@ -59,7 +62,7 @@
+ 
+ void module_free(struct module *module, void *region)
+ {
+-	vfree(region);
++	kfree(region);
+ }
+ 
+ int module_frob_arch_sections(Elf_Ehdr *hdr,
