@@ -685,3 +685,6 @@ written 24 bytes(s),current_len:24
 # read 24 bytes(s),current_len:0
 hello,cisco, I love you
 }}}
+
+已经做好的包位于：
+http://ldd6410.googlecode.com/files/ldd6410-skyeye-pack-with-module.tar.gz。
