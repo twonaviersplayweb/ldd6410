@@ -161,3 +161,6 @@ $1 = {cdev = {kobj = {name = 0x0, entry = {next = 0xc0618004, prev = 0xc0618004}
 (gdb) 
 
 }}}
+
+已经做好的，可直接进行内核和内核模块调试实验的包位于：
+http://ldd6410.googlecode.com/files/ldd6410-skyeye-pack-with-debug.tar.gz
