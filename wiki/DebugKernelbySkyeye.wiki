@@ -110,17 +110,6 @@ add symbol table from file "drivers/char/driver_examples/globalfifo.ko" at
 Reading symbols from /home/bhsong/develop/svn/ldd6410/linux-2.6.31/drivers/char/driver_examples/globalfifo.ko...done.
 (gdb) 
 }}}
-由于编译出来模块的路径与vmlinux不一致，我们在gdb中可通过dir命令引入源代码路径：
-{{{
-(gdb) dir drivers/char/driver_examples
-Source directories searched: /home/bhsong/develop/svn/ldd6410/linux-2.6.31/drivers/char/driver_examples:$cdir:$cwd
-(gdb) b globalfifo_read
-Breakpoint 1 at 0xc182a444: file drivers/char/driver_examples/globalfifo.c, line 104.
-(gdb) b drivers/char/driver_examples/globalfifo.c:119
-Breakpoint 2 at 0xc182a4c0: file drivers/char/driver_examples/globalfifo.c, line 119.
-(gdb) 
-
-}}}
 调试模块：
 在主机调试器上设置在globalfifo_read处断点：
 {{{
@@ -180,5 +169,12 @@ $1 = {cdev = {kobj = {name = 0x0, entry = {next = 0xc0618004, prev = 0xc0618004}
 
 }}}
 
+如果编译出来模块没有源代码路径信息，我们可在gdb中可通过dir命令引入源代码路径：
+{{{
+(gdb) dir drivers/char/driver_examples
+Source directories searched: /home/bhsong/develop/svn/ldd6410/linux-2.6.31/drivers/char/driver_examples:$cdir:$cwd
+(gdb) 
+
+}}}
 已经做好的，可直接进行内核和内核模块调试实验的包位于：
 http://ldd6410.googlecode.com/files/ldd6410-skyeye-pack-with-debug.tar.gz
