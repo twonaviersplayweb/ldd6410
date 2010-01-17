@@ -12,7 +12,7 @@ make vmlinux得到新的包含符号信息的内核。make modules得到新的�
 = 启动skyeye为debug模式运行vmlinux =
 
 {{{
-bhsong@bhsong-laptop:~/develop/training/skyeye/training-simulation-with-debconf udo skyeye -d -e vmlinux -c skyeye-standalone.c
+bhsong@bhsong-laptop:~/develop/training/skyeye/training-simulation-with-debug# sudo skyeye -d -e vmlinux -c skyeye-standalone.conf 
 big_endian is false.
 arch: arm
 cpu info: armv4, arm920t, 41009200, ff00fff0, 2 
@@ -24,6 +24,7 @@ SKYEYE: use arm920t mmu ops
 Loaded RAM   ./initrd.img
 start addr is set to 0xc0008000 by exec file.
 debugmode= 1, filename = skyeye-standalone.conf, server TCP port is 12345
+
 }}}
 
 = 通过arm-linux-gdb连接`localhost:12345` =
