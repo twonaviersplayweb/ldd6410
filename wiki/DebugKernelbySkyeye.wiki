@@ -95,6 +95,10 @@ $1 = 0xffff15a0
 # cat .text 
 0xc1c06000
 }}}
+请确保根文件系统中包含sys，并在根文件系统的etc/init.d/rcS脚本中添加了：
+{{{
+ /bin/mount -t sysfs sysfs /sys
+}}}
 在主机调试器上添加globalfifo的符号，添加符号时所用section地址皆来源于目标机：
 {{{
 (gdb) add-symbol-file drivers/char/driver_examples/globalfifo.ko 0xc1c06000 -s .bss 0xc1c07160 -s .data 0xc1c06000
