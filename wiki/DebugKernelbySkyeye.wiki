@@ -110,6 +110,17 @@ add symbol table from file "drivers/char/driver_examples/globalfifo.ko" at
 Reading symbols from /home/bhsong/develop/svn/ldd6410/linux-2.6.31/drivers/char/driver_examples/globalfifo.ko...done.
 (gdb) 
 }}}
+由于编译出来模块的路径与vmlinux不一致，我们在gdb中可通过dir命令引入源代码路径：
+{{{
+(gdb) dir drivers/char/driver_examples
+Source directories searched: /home/bhsong/develop/svn/ldd6410/linux-2.6.31/drivers/char/driver_examples:$cdir:$cwd
+(gdb) b globalfifo_read
+Breakpoint 1 at 0xc182a444: file drivers/char/driver_examples/globalfifo.c, line 104.
+(gdb) b drivers/char/driver_examples/globalfifo.c:119
+Breakpoint 2 at 0xc182a4c0: file drivers/char/driver_examples/globalfifo.c, line 119.
+(gdb) 
+
+}}}
 调试模块：
 在主机调试器上设置在globalfifo_read处断点：
 {{{
