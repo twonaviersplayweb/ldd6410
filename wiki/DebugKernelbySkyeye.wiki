@@ -7,7 +7,7 @@
 Kernel hacking  ---> 
 	[*] Compile the kernel with debug info 
 }}}
-make vmlinux得到新的包含符号信息的内核。
+make vmlinux得到新的包含符号信息的内核。make modules得到新的包含符号信息的内核模块，并通过make modules_install INSTALL_MOD_PATH=your_rootfs_dir命令安装到rootfs映像。
 
 = 启动skyeye为debug模式运行vmlinux =
 
