@@ -84,74 +84,6 @@ obj-$(CONFIG_GLOBALFIFO)        += globalfifo.o
 Index: drivers/char/Kconfig
 ===================================================================
 --- drivers/char/Kconfig	(revision 87)
-+++ drivers/char/Kconfig	(working copy)Index: drivers/char/driver_examples/Makefile
-===================================================================
---- drivers/char/driver_examples/Makefile	(revision 0)
-+++ drivers/char/driver_examples/Makefile	(revision 0)
-@@ -0,0 +1,3 @@
-+obj-$(CONFIG_HELLO_WORLD)		+= hello.o
-+obj-$(CONFIG_GLOBALMEM)		+= globalmem.o
-+obj-$(CONFIG_GLOBALFIFO)		+= globalfifo.o
-@@ -1110,5 +1110,7 @@
- 
- source "drivers/s390/char/Kconfig"
- 
-+source "drivers/char/driver_examples/Kconfig"
-+
- endmenu
- 
-Index: drivers/char/Makefile
-===================================================================
---- drivers/char/Makefile	(revision 87)
-+++ drivers/char/Makefile	(working copy)
-@@ -111,6 +111,8 @@
- obj-$(CONFIG_JS_RTC)		+= js-rtc.o
- js-rtc-y = rtc.o
- 
-+obj-$(CONFIG_DRIVER_EXAMPLE)		+= driver_examples/
-+
- # Files generated that shall be removed upon make clean
- clean-files := consolemap_deftbl.c defkeymap.c
- 
-Index: drivers/char/driver_examples/Kconfig
-===================================================================
---- drivers/char/driver_examples/Kconfig	(revision 0)
-+++ drivers/char/driver_examples/Kconfig	(revision 0)
-@@ -0,0 +1,31 @@
-+#
-+# driver examples configuration
-+#
-+
-+menuconfig DRIVER_EXAMPLE
-+	tristate "driver examples in 'Explain Linux Device Drivers in detail'"
-+	---help---
-+	  say Yes to build-in hello world, globalmem, globalfifo, say M to get
-+	  those kernel modules
-+
-+if DRIVER_EXAMPLE
-+
-+config HELLO_WORLD
-+	tristate "Hello World"
-+	---help---
-+	  To compile this driver as a module, choose M here; the module will be
-+	  called hello.
-+
-+config GLOBALMEM
-+	tristate "globalmem"
-+	---help---
-+	  To  compile this driver as a module, choose M here; the module will be
-+	  called globalmem.
-+
-+config GLOBALFIFO
-+	tristate "globalfifo"
-+	---help---
-+	  To  compile this driver as a module, choose M here; the module will be
-+	  called globalfifo.
-+
-+endif # DRIVER_EXAMPLE
-+Index: drivers/char/Kconfig
-===================================================================
---- drivers/char/Kconfig	(revision 87)
 +++ drivers/char/Kconfig	(working copy)
 @@ -1110,5 +1110,7 @@
  
@@ -216,7 +148,7 @@ Index: drivers/char/driver_examples/Makefile
 +++ drivers/char/driver_examples/Makefile	(revision 0)
 @@ -0,0 +1,3 @@
 +obj-$(CONFIG_HELLO_WORLD)		+= hello.o
-+obj-$(CONFIG_GLOBALMEM)		+= globalmem.o
++obj-$(CONFIG_GLOBALMEM)		    += globalmem.o
 +obj-$(CONFIG_GLOBALFIFO)		+= globalfifo.o
 }}}
 
