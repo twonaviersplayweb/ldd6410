@@ -85,6 +85,7 @@ $1 = 0xffff15a0
 # 
 }}}
 在目标机上获得globalfifo运行时地址信息：
+{{{
 # cd /sys/module/globalfifo/sections/
 # cat .bss
 0xc1c07160
@@ -92,6 +93,7 @@ $1 = 0xffff15a0
 0xc1c07024
 # cat .text 
 0xc1c06000
+}}}
 在主机调试器上添加globalfifo的符号，添加符号时所用section地址皆来源于目标机：
 {{{
 (gdb) add-symbol-file drivers/char/driver_examples/globalfifo.ko 0xc1c06000 -s .bss 0xc1c07160 -s .data 0xc1c06000
