@@ -328,5 +328,12 @@ static struct platform_device *skyeye2410_devices[] __initdata = {
     /*&s3c_device_i2c0,*/
     /*&s3c_device_iis,*/
 };
-将新模块入rootfs，加载globalfifo.ko，观察/sys下bus和devices的变化。
+
 }}}
+将新模块入rootfs，加载globalfifo.ko，观察/sys下bus和devices的变化。会发现目标机的/sys中新增加了如下目录：
+{{{
+/sys/bus/platform/devices/globalfifo/
+/sys/devices/platform/globalfifo/
+}}}
+
+在板文件中去掉:globalfifo_device，重新编译kernel，观察新kernel下加载globalfifo.ko后的情况。
