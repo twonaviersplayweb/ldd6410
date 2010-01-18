@@ -216,7 +216,16 @@ MACHINE_END
 配置内核，选择skyeye2410板:
 {{{
 System Type  ---> 
-	S3C2410 Machines  ---> 
+	S3C2410 Machines  --->
+                 [ ] SMDK2410/A9M2410    
+                 [ ] IPAQ H1940          
+                 [ ] Acer N30 family          
+                 [ ] Simtec Electronics BAST (EB2410ITX)       
+                 [ ] NexVision OTOM Board                                                               
+                 [ ] AML M5900 Series                                                   
+                 [ ] TCT Hammer Board                                                                 
+                 [ ] Thorcom VR1000                                     
+                 [ ] QT2410    
 		 [*] skyeye 2410 board
 }}}
 
