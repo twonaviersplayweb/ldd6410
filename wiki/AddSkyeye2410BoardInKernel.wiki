@@ -241,3 +241,17 @@ Machine: skyeye2410
 }}}
 
 另外，我们也可以为skyeye2410电路板分配一个新的machine ID,这样就不再需要在`MACHINE_START(SMDK2410, "skyeye2410")`等处使用smdk2410的ID了。
+
+
+= 体验通过修改platform data来变更驱动属性 =
+将arch/arm/mach-s3c2410/mach-skyeye2410.c中的
+{{{
+#define LCD_WIDTH 320
+#define LCD_HEIGHT 240
+}}}
+变更为
+{{{
+#define LCD_WIDTH 240
+#define LCD_HEIGHT 160
+}}}
+重新编译内核，在skyeye运行，观察LCD窗口的变化。
