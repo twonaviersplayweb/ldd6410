@@ -1,10 +1,16 @@
+/*
+ * LDD6410 USB mice test programs
+ * Copyright 2009 LiHacker Computer Technology Inc.
+ */
+
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <linux/input.h>
 #include <sys/mman.h>
-	
+
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
@@ -12,6 +18,13 @@ struct fb_fix_screeninfo finfo;
 void draw_rect(int x_s, int x_e, int y_s, int y_e,  int color)
 {
 	int x, y;
+
+	/* for WANXIN LCD, let x,y smaller */
+
+	x_s = (x_s * 1.0/1024) * vinfo.xres;
+	x_e = (x_e * 1.0/1024) * vinfo.xres;
+	y_s = (y_s * 1.0/768.0) * vinfo.yres;
+	y_e = (y_e * 1.0/768.0) * vinfo.yres;
 
 	for (y = y_s; y < y_e; y++) {
 		for (x = x_s; x < x_e; x++) {
@@ -21,7 +34,7 @@ void draw_rect(int x_s, int x_e, int y_s, int y_e,  int color)
 
 			*((unsigned short int*)(fbp + location)) = color;
 		}
-	}	
+	}
 }
 
 int main()
@@ -40,7 +53,7 @@ int main()
 		exit(1);
 	}
 	printf("The framebuffer device was opened successfully.\n");
-	
+
 	keyfd = open("/dev/event2", O_RDWR);
 	if (!keyfd) {
 		printf("Error: cannot open mice input device.\n");
@@ -75,10 +88,11 @@ int main()
 	}
 	printf("The framebuffer device was mapped to memory successfully.\n");
 
+	draw_rect(0,1024,0,768,0xffff);
 	draw_rect(300,400,400,500,0x1f);
-	draw_rect(500,600,400,500,0x1f); 
+	draw_rect(500,600,400,500,0x1f);
 	draw_rect(700,800,400,500,0x1f);
-	
+
 	int screen_x = 100, screen_y = 100;
 	int left=0,right=0;
 
@@ -97,7 +111,7 @@ int main()
 				left = event.value;
 			}
 			if (event.code == BTN_MIDDLE)
-				draw_rect(500,600,400,500,event.value > 0 ? (0x1f << 11):0x1f);	
+				draw_rect(500,600,400,500,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == BTN_RIGHT) {
 				draw_rect(700,800,400,500,event.value > 0 ? (0x1f << 11):0x1f);
 				right = event.value;
@@ -108,7 +122,7 @@ int main()
 
 		if(event.type == EV_REL) {
 			if(event.code == REL_X)
-				x = event.value;	
+				x = event.value;
 			if(event.code == REL_Y)
 				y = event.value;
 		}
@@ -116,8 +130,8 @@ int main()
 			screen_x += x;
 			screen_y += y;
 			if(screen_x>=1014) screen_x = 1014;
-			if(screen_y>=758) screen_y = 758;		
-			
+			if(screen_y>=758) screen_y = 758;
+
 			if(screen_x<0) screen_x = 0;
 			if(screen_y<0) screen_y = 0;
 			draw_rect(screen_x,screen_x+10,screen_y,screen_y+10, 0);
