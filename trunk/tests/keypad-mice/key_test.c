@@ -1,4 +1,9 @@
+/*
+ * LDD6410 key test programs
+ * Copyright 2009 LiHacker Computer Technology Inc.
+ */
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <linux/fb.h>
@@ -14,6 +19,13 @@ void draw_rect(int x_s, int x_e, int y_s, int y_e,  int color)
 {
 	int x, y;
 
+	/* for WANXIN LCD, let x,y smaller */
+
+	x_s = (x_s * 1.0/1024) * vinfo.xres;
+	x_e = (x_e * 1.0/1024) * vinfo.xres;
+	y_s = (y_s * 1.0/768.0) * vinfo.yres;
+	y_e = (y_e * 1.0/768.0) * vinfo.yres;
+
 	for (y = y_s; y < y_e; y++) {
 		for (x = x_s; x < x_e; x++) {
 
@@ -22,7 +34,7 @@ void draw_rect(int x_s, int x_e, int y_s, int y_e,  int color)
 
 			*((unsigned short int*)(fbp + location)) = color;
 		}
-	}	
+	}
 }
 
 int main()
@@ -41,7 +53,7 @@ int main()
 		exit(1);
 	}
 	printf("The framebuffer device was opened successfully.\n");
-	
+
 	keyfd = open("/dev/event0", O_RDWR);
 	if (!keyfd) {
 		printf("Error: cannot open key input device.\n");
@@ -69,20 +81,21 @@ int main()
 
 	// Map the device to memory
 	fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
-			fbfd, 0);
+		fbfd, 0);
 	if ((int)fbp == -1) {
 		printf("Error: failed to map framebuffer device to memory.\n");
 		exit(4);
 	}
 	printf("The framebuffer device was mapped to memory successfully.\n");
 
+	draw_rect(0, 1024, 0, 768, 0);
 	draw_rect(100,200,400,500,0x1f);
-	draw_rect(350,450,320,420,0x1f); 
+	draw_rect(350,450,320,420,0x1f);
 	draw_rect(550,650,320,420,0x1f);
 	draw_rect(350,450,520,620,0x1f);
 	draw_rect(550,650,520,620,0x1f);
 	draw_rect(800,900,400,500,0x1f);
-	
+
 	int left = 0,right = 0;
 
 	while(1) {
@@ -95,14 +108,14 @@ int main()
 		if( event.type == 1) {
 			if (event.code == KEY_ENTER) {
 				draw_rect(100,200,400,500,event.value > 0 ? (0x1f << 11):0x1f);
-				left = event.value;	
+				left = event.value;
 			}
 			if (event.code == KEY_UP)
-				draw_rect(350,450,320,420,event.value > 0 ? (0x1f << 11):0x1f);	
+				draw_rect(350,450,320,420,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_DOWN)
-				draw_rect(350,450,520,620,event.value > 0 ? (0x1f << 11):0x1f);	
+				draw_rect(350,450,520,620,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_HOME)
-				draw_rect(550,650,320,420,event.value > 0 ? (0x1f << 11):0x1f);	
+				draw_rect(550,650,320,420,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_TAB)
 				draw_rect(550,650,520,620,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_END) {
