@@ -1,0 +1,54 @@
+ts_error.lo: ts_error.c ../config.h \
+  /usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stdarg.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/stdio.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/features.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/sys/cdefs.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/wordsize.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/gnu/stubs.h \
+  /usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stddef.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/types.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/typesizes.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/libio.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/_G_config.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/wchar.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/wchar.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/gconv.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/stdio_lim.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/sys_errlist.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/stdio.h
+
+../config.h:
+
+/usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stdarg.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/stdio.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/features.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/sys/cdefs.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/wordsize.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/gnu/stubs.h:
+
+/usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stddef.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/types.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/typesizes.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/libio.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/_G_config.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/wchar.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/wchar.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/gconv.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/stdio_lim.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/sys_errlist.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/stdio.h:

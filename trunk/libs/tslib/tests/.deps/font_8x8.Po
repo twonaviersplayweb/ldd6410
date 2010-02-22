@@ -1,0 +1,21 @@
+font_8x8.o: font_8x8.c font.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/linux/types.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/asm/types.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/linux/posix_types.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/linux/stddef.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/linux/compiler.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/asm/posix_types.h
+
+font.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/linux/types.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/asm/types.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/linux/posix_types.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/linux/stddef.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/linux/compiler.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/asm/posix_types.h:
