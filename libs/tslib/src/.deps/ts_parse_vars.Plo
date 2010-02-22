@@ -1,0 +1,69 @@
+ts_parse_vars.lo: ts_parse_vars.c ../config.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/alloca.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/features.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/sys/cdefs.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/wordsize.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/gnu/stubs.h \
+  /usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stddef.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/string.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/string.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/string2.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/stdlib.h tslib-private.h tslib.h \
+  /usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stdarg.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/sys/time.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/types.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/typesizes.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/time.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/time.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/sys/select.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/select.h \
+  /usr/local/arm/4.2.2-eabi//usr/include/bits/sigset.h tslib-filter.h \
+  tslib.h
+
+../config.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/alloca.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/features.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/sys/cdefs.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/wordsize.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/gnu/stubs.h:
+
+/usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stddef.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/string.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/string.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/string2.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/stdlib.h:
+
+tslib-private.h:
+
+tslib.h:
+
+/usr/local/arm/4.2.2-eabi/usr/bin-ccache/../lib/gcc/arm-unknown-linux-gnueabi/4.2.2/include/stdarg.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/sys/time.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/types.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/typesizes.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/time.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/time.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/sys/select.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/select.h:
+
+/usr/local/arm/4.2.2-eabi//usr/include/bits/sigset.h:
+
+tslib-filter.h:
+
+tslib.h:
