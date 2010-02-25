@@ -175,7 +175,7 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"set bootargs root=/dev/mtdblock2 rootfstype=yaffs2 console=ttySAC0,115200"
+#define CONFIG_BOOTARGS    	"set bootargs root=/dev/mmcblk0p2 rootfstype=ext3 rootwait console=ttySAC0,115200"
 #define CONFIG_ETHADDR		00:40:5c:26:0a:5b
 #define CONFIG_NETMASK      255.255.255.0
 #define CONFIG_IPADDR		192.168.1.20
