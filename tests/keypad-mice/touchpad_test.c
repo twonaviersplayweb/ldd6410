@@ -1,5 +1,5 @@
 /*
- * LDD6410 USB mice test programs
+ * LDD6410 touchpad test programs
  * Copyright 2009 LiHacker Computer Technology Inc.
  */
 
@@ -101,24 +101,13 @@ int main()
 		}
 
 		if(event.type == 0) {
-			/*
-			 * convert touchscreen x, y to screen x, y
-			 * touchpad (x,y) at the left-top is (5917, 13148)
-			 *                at the right-bottom is (10975, 2441)
-			 */
-
-			if(x<5917)  x=5917;  if(x>10975) x=10975;
-			if(y>13148) x=13148; if(y<2441)  y=2441;
-
-			screen_y = ((x - 5917) * 1.0 / (10975 - 5917)) * vinfo.yres;
-			screen_x = ((y - 13148) * 1.0 / (2441 - 13148)) * vinfo.xres;
+			screen_x = x;
+			screen_y = y;
 
 			if(screen_x >= vinfo.xres - 5) screen_x = vinfo.xres - 5;
 			if(screen_y >= vinfo.yres - 5) screen_y = vinfo.yres - 5;
 			if(screen_x<0) screen_x = 0;
 			if(screen_y<0) screen_y = 0;
-
-			printf("current touched touchpad(%d, %d), screen(%d, %d)\n", x, y, screen_x, screen_y);
 
 			draw_rect(screen_x,screen_x+5,screen_y,screen_y+5, 0);
 		}

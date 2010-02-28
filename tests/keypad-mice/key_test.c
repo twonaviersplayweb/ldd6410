@@ -110,7 +110,7 @@ int main()
 				draw_rect(100,200,400,500,event.value > 0 ? (0x1f << 11):0x1f);
 				left = event.value;
 			}
-			if (event.code == KEY_UP)
+			if (event.code == KEY_POWER)
 				draw_rect(350,450,320,420,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_DOWN)
 				draw_rect(350,450,520,620,event.value > 0 ? (0x1f << 11):0x1f);
@@ -118,7 +118,7 @@ int main()
 				draw_rect(550,650,320,420,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_TAB)
 				draw_rect(550,650,520,620,event.value > 0 ? (0x1f << 11):0x1f);
-			if (event.code == KEY_END) {
+			if (event.code == KEY_MENU) {
 				draw_rect(800,900,400,500,event.value > 0 ? (0x1f << 11):0x1f);
 				right = event.value;
 			}
