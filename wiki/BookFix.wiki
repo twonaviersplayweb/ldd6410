@@ -2,6 +2,7 @@
 #labels Linux设备驱动开发详解,勘误表
 
     以下为第1版第1次印刷的勘误，后期印刷的书中可能包含其中的部分错误。如果您发现新的错误，请发送邮件至author@linuxdriver.cn，非常感谢您的支持！
+{{{
 1.
 代码清单7.5第27行globalfifo_devp应该为globalmem_devp；
 7.8节总结上面最后一行的globalfifo_devp也应该为globalmem_devp；
@@ -73,3 +74,4 @@ upper_margin = 216，lower_margin = 2，hsync_len = 28，vsync_len = 2。即uppe
 192页倒数第6行，“返回-INVAL”改为“返回-EINVAL”
 26.
 118页代码清单6.5上一段“工程师通常习惯将设备定义为”改为“工程师通常习惯为设备定义”
+}}}
