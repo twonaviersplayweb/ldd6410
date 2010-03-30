@@ -1,8 +1,8 @@
 /*
  * A simple kernel module: "hello world"
  *
- * The initial developer of the original code is Baohua Song
- * <author@linuxdriver.cn>. All Rights Reserved.
+ * The initial developer of the original code is Barry Song
+ * <21cnbao@gmail.com>. All Rights Reserved.
  */
 
 #include <linux/init.h>
@@ -22,7 +22,7 @@ static void hello_exit(void)
 module_init(hello_init);
 module_exit(hello_exit);
 
-MODULE_AUTHOR("Song Baohua");
+MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_DESCRIPTION("A simple Hello World Module");
 MODULE_ALIAS("a simplest module");
