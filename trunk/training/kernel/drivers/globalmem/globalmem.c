@@ -218,7 +218,7 @@ void globalmem_exit(void)
 	unregister_chrdev_region(MKDEV(globalmem_major, 0), 1); /* Õ∑≈…Ë±∏∫≈*/
 }
 
-MODULE_AUTHOR("Song Baohua");
+MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
 MODULE_LICENSE("Dual BSD/GPL");
 
 module_param(globalmem_major, int, S_IRUGO);
