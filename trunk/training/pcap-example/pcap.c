@@ -1,3 +1,8 @@
+/*
+ * This application sniffs on whatever device is returned by pcap_lookupdev() by
+ * putting it into promiscuous mode. It finds the first packet to come across port
+ * 23 (telnet) and tells the user the size of the packet (in bytes).
+ */
 #include <pcap.h>
 #include <stdio.h>
 #include <stdlib.h>
