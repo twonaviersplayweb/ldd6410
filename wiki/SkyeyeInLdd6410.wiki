@@ -27,7 +27,7 @@
 }}}
   sudo vim /etc/default/tftpd-hpa修改文件内容为:
 {{{
-  RUN_DAEMON="yes
+  RUN_DAEMON="yes"
   OPTIONS="-l -c -s /home/tftp"
 }}}
   开启tftp服务：
