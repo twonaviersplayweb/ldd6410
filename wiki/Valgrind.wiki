@@ -1,0 +1,51 @@
+#summary valgrind检测内存泄露
+#labels valgrind,memoryleak
+
+ Valgrind现在提供多个工具，其中最重要的是Memcheck，Cachegrind，Massif和Callgrind。Memcheck这个工具可以用来寻找c、c++和fortran程序中内存管理的错误。Memcheck可以检查出下列几种内存操作上的错误：
+
+  * 读写已经释放的内存，或同一个malloc的内存块释放多次
+  * 读写内存块越界（从前或者从后）
+  * 使用还未初始化的变量
+  * 将无意义的参数传递给系统调用
+  * 内存泄漏
+下面的程序犯有错误：
+{{{
+#include <string.h>
+
+int foo(int x)
+{
+	if (x < 0)
+		printf("%d ", x);
+
+	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	char *ptr, *ptr1;
+	int x, y[10];
+
+	/* malloc without free */
+	ptr = (char*) malloc(10);
+	strcpy(ptr, "01234567890");
+
+	/* not initialized memory */
+	foo(x);
+	
+	/* more free */
+	ptr1 = (char*) malloc(10);
+	ptr1[0] = '\0';
+	free(ptr1);
+	free(ptr1);
+	
+	/* array overflow */
+	y[11] = 0;
+
+	return 0;
+}    
+}}}
+使用Valgrind运行它：
+{{{
+valgrind --tool=memcheck --leak-check=yes ./test
+}}}
+得到如下结果：
