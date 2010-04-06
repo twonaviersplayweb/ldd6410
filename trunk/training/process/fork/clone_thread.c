@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <sched.h>
 #include <stdlib.h>
-#include "../new_syscall.c"
 int data = 10;
 
 int child_process()
 {
-	printf("Child process %d,%d, data %d\n",getpid(), getrpid(), data);
+	printf("Child process %d,data %d\n",getpid(), data);
 	data = 20;
-	printf("Child process %d,%d,data %d\n",getpid(), getrpid(), data);
+	printf("Child process %d,data %d\n",getpid(), data);
 	while(1);
 }
 
