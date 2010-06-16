@@ -21,7 +21,7 @@
 
 #define GLOBALFIFO_SIZE	0x1000	/*全局fifo最大4K字节*/
 #define FIFO_CLEAR 0x1  /*清0全局内存的长度*/
-#define GLOBALFIFO_MAJOR 111    /*预设的globalfifo的主设备号*/
+#define GLOBALFIFO_MAJOR 249    /*预设的globalfifo的主设备号*/
 
 static int globalfifo_major = GLOBALFIFO_MAJOR;
 /*globalfifo设备结构体*/
@@ -222,7 +222,6 @@ static void globalfifo_setup_cdev(struct globalfifo_dev *dev, int index)
 
 	cdev_init(&dev->cdev, &globalfifo_fops);
 	dev->cdev.owner = THIS_MODULE;
-	dev->cdev.ops = &globalfifo_fops;
 	err = cdev_add(&dev->cdev, devno, 1);
 	if (err)
 		printk(KERN_NOTICE "Error %d adding LED%d", err, index);
