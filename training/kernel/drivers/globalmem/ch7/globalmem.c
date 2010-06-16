@@ -1,7 +1,7 @@
 /*
  * A globalmem driver as an example of char device drivers
  *
- * The initial developer of the original code is Baohua Song
+ * The initial developer of the original code is Barry Song
  * <author@linuxdriver.cn>. All Rights Reserved.
  */
 
@@ -26,6 +26,7 @@ static int globalmem_major = GLOBALMEM_MAJOR;
 struct globalmem_dev {
 	struct cdev cdev; /*cdev结构体*/
 	unsigned char mem[GLOBALMEM_SIZE]; /*全局内存*/
+	struct semaphore sem; /*并发控制用的信号量*/
 };
 
 struct globalmem_dev *globalmem_devp; /*设备结构体指针*/
@@ -50,7 +51,11 @@ static int globalmem_ioctl(struct inode *inodep, struct file *filp, unsigned
 
 	switch (cmd) {
 	case MEM_CLEAR:
+		if (down_interruptible(&dev->sem)) /* 获得信号量*/
+			return  - ERESTARTSYS;
 		memset(dev->mem, 0, GLOBALMEM_SIZE);
+		up(&dev->sem); /* 释放信号量*/
+
 		printk(KERN_INFO "globalmem is set to zero\n");
 		break;
 
@@ -76,6 +81,9 @@ static ssize_t globalmem_read(struct file *filp, char __user *buf, size_t size,
 	if (count > GLOBALMEM_SIZE - p)
 		count = GLOBALMEM_SIZE - p;
 
+	if (down_interruptible(&dev->sem)) /* 获得信号量*/
+		return  - ERESTARTSYS;
+
 	/*内核空间->用户空间*/
 	if (copy_to_user(buf, (void *)(dev->mem + p), count)) {
 		ret =  - EFAULT;
@@ -85,6 +93,7 @@ static ssize_t globalmem_read(struct file *filp, char __user *buf, size_t size,
 
 		printk(KERN_INFO "read %u bytes(s) from %lu\n", count, p);
 	}
+	up(&dev->sem); /* 释放信号量*/
 
 	return ret;
 }
@@ -104,6 +113,8 @@ static ssize_t globalmem_write(struct file *filp, const char __user *buf,
 	if (count > GLOBALMEM_SIZE - p)
 		count = GLOBALMEM_SIZE - p;
 
+	if (down_interruptible(&dev->sem)) /* 获得信号量*/
+		return  - ERESTARTSYS;
 	/*用户空间->内核空间*/
 	if (copy_from_user(dev->mem + p, buf, count))
 		ret =  - EFAULT;
@@ -113,6 +124,7 @@ static ssize_t globalmem_write(struct file *filp, const char __user *buf,
 
 		printk(KERN_INFO "written %u bytes(s) from %lu\n", count, p);
 	}
+	up(&dev->sem); /* 释放信号量*/
 
 	return ret;
 }
@@ -171,7 +183,6 @@ static void globalmem_setup_cdev(struct globalmem_dev *dev, int index)
 
 	cdev_init(&dev->cdev, &globalmem_fops);
 	dev->cdev.owner = THIS_MODULE;
-	dev->cdev.ops = &globalmem_fops;
 	err = cdev_add(&dev->cdev, devno, 1);
 	if (err)
 		printk(KERN_NOTICE "Error %d adding LED%d", err, index);
@@ -203,6 +214,7 @@ int globalmem_init(void)
 	memset(globalmem_devp, 0, sizeof(struct globalmem_dev));
 
 	globalmem_setup_cdev(globalmem_devp, 0);
+	init_MUTEX(&globalmem_devp->sem);   /*初始化信号量*/
 	return 0;
 
 fail_malloc:
