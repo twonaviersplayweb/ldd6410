@@ -443,8 +443,8 @@
 
 /* Boot configuration (define only one of next 3) */
 //#define CONFIG_BOOT_NOR
-//#define CONFIG_BOOT_NAND
-#define CONFIG_BOOT_MOVINAND
+#define CONFIG_BOOT_NAND
+//#define CONFIG_BOOT_MOVINAND
 //#define CONFIG_BOOT_ONENAND
 //#define CONFIG_BOOT_ONENAND_IROM
 
