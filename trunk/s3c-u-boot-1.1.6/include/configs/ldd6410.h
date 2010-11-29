@@ -32,7 +32,7 @@
  */
 #define CONFIG_S3C6410		1		/* in a SAMSUNG S3C6410 SoC */
 #define CONFIG_S3C64XX		1		/* in a SAMSUNG S3C64XX Family  */
-#define CONFIG_LDD6410		1		/* on a Lihacker LDD6410 Board  */
+#define CONFIG_LDD6410		1		/* on a www.linuxdriver.cn LDD6410 Board  */
 //#define CONFIG_LDD6410_X5A	1		/* on a Lihacker LDD6410 OneNAND POP Board */
 
 #define MEMORY_BASE_ADDRESS	0x50000000
@@ -411,8 +411,8 @@
 #define CONFIG_IDENT_STRING	" for LDD6410" \
 "\n****************************************" \
 "\n**    LDD-S3C6410 Nand boot v0.1      **" \
-"\n**  ShangHai Lihacker Computer Tec    **" \
-"\n**    http://www.lihacker.com         **" \
+"\n**        Linux设备驱动开发网         **" \
+"\n**    http://www.linuxdriver.cn       **" \
 "\n****************************************"
 
 /* total memory required by uboot */
