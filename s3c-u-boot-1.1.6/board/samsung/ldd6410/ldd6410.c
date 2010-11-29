@@ -29,13 +29,13 @@
 #include <regs.h>
 
 /* ------------------------------------------------------------------------- */
-#define DM9000_Tacs	(0x0)	// 0clk		address set-up
-#define DM9000_Tcos	(0x0)	// 0clk		chip selection set-up
-#define DM9000_Tacc	(0x7)	// 7clk	access cycle
-#define DM9000_Tcoh	(0x0)	// 0clk		chip selection hold
-#define DM9000_Tah	(0x0)	// 0clk		address holding time
-#define DM9000_Tacp	(0x0)	// 0clk		page mode access cycle
-#define DM9000_PMC	(0x0)	// normal(1data)page mode configuration
+#define DM9000_Tacs (0x0)   // 0clk     address set-up
+#define DM9000_Tcos (0x4)   // 4clk     chip selection set-up
+#define DM9000_Tacc (0xE)   // 14clk    access cycle
+#define DM9000_Tcoh (0x1)   // 1clk     chip selection hold
+#define DM9000_Tah  (0x4)   // 4clk     address holding time
+#define DM9000_Tacp (0x6)   // 6clk     page mode access cycle
+#define DM9000_PMC  (0x0)   // normal(1data)page mode configuration
 
 static inline void delay(unsigned long loops)
 {
