@@ -54,7 +54,7 @@ int main()
 	}
 	printf("The framebuffer device was opened successfully.\n");
 
-	keyfd = open("/dev/event0", O_RDWR);
+	keyfd = open("/dev/input/event0", O_RDWR);
 	if (!keyfd) {
 		printf("Error: cannot open key input device.\n");
 		exit(1);
