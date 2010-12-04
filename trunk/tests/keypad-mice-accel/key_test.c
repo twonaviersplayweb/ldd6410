@@ -106,19 +106,19 @@ int main()
 			continue;
 
 		if( event.type == 1) {
-			if (event.code == KEY_ENTER) {
+			if (event.code == KEY_MENU) {
 				draw_rect(100,200,400,500,event.value > 0 ? (0x1f << 11):0x1f);
 				left = event.value;
 			}
 			if (event.code == KEY_POWER)
 				draw_rect(350,450,320,420,event.value > 0 ? (0x1f << 11):0x1f);
-			if (event.code == KEY_DOWN)
+			if (event.code == KEY_BACK)
 				draw_rect(350,450,520,620,event.value > 0 ? (0x1f << 11):0x1f);
 			if (event.code == KEY_HOME)
 				draw_rect(550,650,320,420,event.value > 0 ? (0x1f << 11):0x1f);
-			if (event.code == KEY_TAB)
+			if (event.code == KEY_VOLUMEUP)
 				draw_rect(550,650,520,620,event.value > 0 ? (0x1f << 11):0x1f);
-			if (event.code == KEY_MENU) {
+			if (event.code == KEY_VOLUMEDOWN) {
 				draw_rect(800,900,400,500,event.value > 0 ? (0x1f << 11):0x1f);
 				right = event.value;
 			}
