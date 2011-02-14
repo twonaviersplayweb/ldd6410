@@ -10,9 +10,9 @@ void sigusr1(int sig)
 
 int main(void)
 {
-	if(signal(SIGINT,SIG_IGN)==SIG_ERR){
+	if(signal(9,SIG_IGN)==SIG_ERR){
 		perror("cannot reset the SIGINT signal handler");
-		return 1;	
+		return 1;
 	}
 
 	if(signal(SIGUSR1,sigusr1)==SIG_ERR){

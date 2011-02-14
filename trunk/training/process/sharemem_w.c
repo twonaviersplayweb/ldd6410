@@ -16,7 +16,7 @@ main(int argc, char** argv)
 	key = ftok(name,0);
 	if(key==-1)
 		perror("ftok error");
-	shm_id=shmget(key,4096,IPC_CREAT|0666);	
+	shm_id=shmget(key,4096,IPC_CREAT|0666);
 	printf("shm_id:%d\n",shm_id);
 	if(shm_id==-1)
 	{
@@ -25,6 +25,7 @@ main(int argc, char** argv)
 	}
 	p_map=(people*)shmat(shm_id,NULL,0);
 	temp='a';
+	printf("%08x\n", p_map);
 	for(i = 0;i<10;i++)
 	{
 		temp+=1;
