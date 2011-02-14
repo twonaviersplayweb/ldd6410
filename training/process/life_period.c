@@ -11,19 +11,19 @@ int main(void)
 	pid = fork();
 
 	if (pid==-1)	{
-		perror("Cannot create new process"); 
-		exit(1); 
-	} else 	if (pid==0) {      
+		perror("Cannot create new process");
+		exit(1);
+	} else 	if (pid==0) {
 		printf("child process id: %ld\n", (long) getpid());
 		pause();
 		_exit(0);
-	} else {                    
+	} else {
 		do {
 			wait_pid=waitpid(pid, &status, WUNTRACED | WCONTINUED);
 
-			if (wait_pid == -1) { 
-				perror("cannot using waitpid function"); 
-				exit(1); 
+			if (wait_pid == -1) {
+				perror("cannot using waitpid function");
+				exit(1);
 			}
 
 			if (WIFEXITED(status))

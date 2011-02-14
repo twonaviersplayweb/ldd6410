@@ -17,7 +17,7 @@ int creat_msg_queue()
         struct msqid_ds buffer;
 
         proj_id=2;
-        key=ftok("/home/baohua",proj_id);
+        key=ftok("/home/bhsong",proj_id);
         if(key==-1){
                 perror("cannot generate the IPC key");
                 return -1;
@@ -36,16 +36,16 @@ int creat_msg_queue()
 int send_msg(int msqid,char* msg)
 {
 	int result;
-	
+
 	msg_info buf;
-	
+
 	buf.mtype=100;
 	strcpy(buf.mtext,msg);
-	
+
 	result=msgsnd(msqid,&buf,strlen(msg),0);
 	if(result==-1)
 		perror("cannot send message to the message queue");
-	
+
 	return result;
 }
 
@@ -58,7 +58,7 @@ int show_msg_queue_stat(int msqid)
 	if(flg==-1){
 		perror("cannot get status of the message queue");
 		return -1;
-	}	
+	}
 
         printf("=======Message Queue Info========\n");
         printf("effective user id : %d \n",buffer.msg_perm.uid);
@@ -75,7 +75,7 @@ int show_msg_queue_stat(int msqid)
 }
 
 int main(int argc,char* argv[])
-{	
+{
 	int msqid;
 
 	if(msqid=creat_msg_queue()<0){
@@ -86,7 +86,7 @@ int main(int argc,char* argv[])
 	if(send_msg(msqid,"test message")<0){
 		printf("send message fail");
 		return -1;
-	}	
+	}
 
 	if(show_msg_queue_stat(msqid)<0){
 		printf("show message queue fail");
@@ -94,4 +94,4 @@ int main(int argc,char* argv[])
 	}
 
 	return 0;
-}	
+}
