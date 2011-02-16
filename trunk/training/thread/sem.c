@@ -1,7 +1,10 @@
-#include <iostream.h>
+#include <iostream>
+#include <cstdlib>
 #include <pthread.h>
 #include <sys/types.h>
 #include <semaphore.h>
+
+using   namespace   std;
 
 #define NBUFF 100
 int nitems;
@@ -21,7 +24,7 @@ void *produce(void *arg)
      sem_post(&nstored);
    }
    return(NULL);
-} 
+}
 void *consume(void *arg)
 {
    int i;
@@ -35,7 +38,7 @@ void *consume(void *arg)
      sem_post(&nempty);
    }
    return(NULL);
-} 
+}
 int main(int argc, char **argv)
 {
    pthread_t tid_produce, tid_consumer;
@@ -52,4 +55,4 @@ int main(int argc, char **argv)
    sem_destroy(&nempty);
    sem_destroy(&nstored);
    exit(0);
-} 
+}
