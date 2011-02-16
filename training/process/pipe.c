@@ -60,7 +60,7 @@ int main(int argc,char* argv[])
 		}else
 			printf("in parent process, send message: %s\n",argv[1]);
 		
-		//read data from the cild process
+		//read data from the child process
                 if(read(f_des2[0],p_msg,BUFSIZ)==-1){
                         perror("parent process cannot read data from pipe");
                         return 1;
