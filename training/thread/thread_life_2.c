@@ -18,7 +18,7 @@ void* thread_fun(void* param)
 	int i;
 
 	for(i=0;i<p->num;i++){
-//		printf("%i: %c\n",i,p->info);
+		printf("%i: %c\n",i,p->info);
 	}
 
 	return NULL;
@@ -57,9 +57,9 @@ int main(void)
 		}*/
 
 	//return 0;
-/*	while(1) 
+/*	while(1)
 	{
 		printf("main\n");
 	}*/
 	pthread_exit(0);
-}	
+}
