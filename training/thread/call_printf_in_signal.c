@@ -4,10 +4,17 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<signal.h>
+print_by_write()
+{
+	write(/*STDOUT_FILENO*/1, "now got a signal\n", strlen("now got a signal\n"));
+}
 void handler(int s){
+#if 0
 	if(s==SIGBUS)printf(" now got a bus error\n");
 	if(s==SIGSEGV)printf("now got segmentation fault\n");
 	if(s==SIGILL)printf(" now got illegal instruction\n");
+#endif
+	print_by_write();
 	exit(1);
 }
 main(){
