@@ -7,8 +7,10 @@
   
   首先来看看Android Makefile是如何解析环境变量TARGET_PRODUCT的。
   Android Makefile 的引用关系是这样的：
+{{{
    Makefile  -> build/core/main.mk -> build/core/config.mk ->build/core/envsetup.mk
    -> build/core/product_config.mk
+}}}
   在build/core/product_config.mk 中编译系统首先调用 build/core/product.mk中定义的函数
   get-all-product-makefiles，来遍历整个device 的子目录， 找到device下所有的
   AndroidProducts.mk, 不同子目录下的AndroidProducts.mk 中定义了不同的 PRODUCT_NAME,
@@ -54,7 +56,7 @@
   中定义了特定Product需要编译和安装的app 和 script.
 
 = 二、创建新设备的配置架构 =
-    
+ {{{   
   device-|
          |-<company_name>-|
                           |-<board_name>-|
@@ -64,16 +66,17 @@
                                      |-AndroidProducts.mk
                                      |-<first_product_name>.mk
                                      |-<second_product_name>.mk
+}}}
   
 = 三、具体配置分析 =
   
-  1、AndroidProducts.mk
+  * 1、AndroidProducts.mk
     在AndroidProducts.mk中只会包括PRODUCT_MAKEFILES变量，一般格式如下：
 {{{
     PRODUCT_MAKEFILES := \
       $(LOCAL_DIR)/<first_product_name>.mk
  }}}     
-  2、<first_product_name>.mk
+  * 2、<first_product_name>.mk
     在<first_product_name>.mk中一般包括如下配置：
 {{{
     $(call inherit-product, &(SRC_TARGET_DIR)/product/languages_full.mk)
@@ -96,7 +99,7 @@
           Email \
           ...
  }}}   
-  3、AndroidBoard.mk
+  * 3、AndroidBoard.mk
     一般会在此添加Keypad的定义：
 {{{
     LOCAL_PATH := $(call my-dir)
@@ -108,7 +111,7 @@
     LOCAL_SRC_FILES := mxckpd.kcm
     include $(BUILD_KEY_CHAR_MAP)
  }}}   
-  4、BoardConfig.mk
+  * 4、BoardConfig.mk
     一般在此定义board的特性，例如：
 {{{
     TARGET_CPU_ABI := armeabi
