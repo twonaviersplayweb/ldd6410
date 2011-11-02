@@ -11,11 +11,7 @@
    Makefile  -> build/core/main.mk -> build/core/config.mk ->build/core/envsetup.mk
    -> build/core/product_config.mk
 }}}
-  在build/core/product_config.mk 中编译系统首先调用 `build/core/product.mk`中定义的函数
-  `get-all-product-makefiles`，来遍历整个device 的子目录， 找到device下所有的
-  `AndroidProducts.mk`, 不同子目录下的`AndroidProducts.mk `中定义了不同的` PRODUCT_NAME`,` PRODUCT_DEVICE `等信息，（我们也可以通过 打开`build/core/product_config.mk`中的`#$(dump-products)`语句使控制台编译的时候输出所有product 的信息），接着
-  `build/core/product_config.mk `会调用`resolve-short-product-name`将TARGET_PRODUCT匹配的
- ` AndroidProducts.mk` 中定义的 PRODUCT_DEVICE 赋值给TARGET_DEVICE。有了这个TARGET_DEVICE, 再回到 `build/core/config.mk`，会`include $(TARGET_DEVCIE)/BoardConfig.mk`
+  在build/core/product_config.mk 中编译系统首先调用 `build/core/product.mk`中定义的函数  `get-all-product-makefiles`，来遍历整个device 的子目录， 找到device下所有的  `AndroidProducts.mk`, 不同子目录下的`AndroidProducts.mk `中定义了不同的` PRODUCT_NAME`,` PRODUCT_DEVICE `等信息，（我们也可以通过 打开`build/core/product_config.mk`中的`#$(dump-products)`语句使控制台编译的时候输出所有product 的信息），接着 `build/core/product_config.mk `会调用`resolve-short-product-name`将TARGET_PRODUCT匹配的`AndroidProducts.mk` 中定义的 PRODUCT_DEVICE 赋值给TARGET_DEVICE。有了这个TARGET_DEVICE, 再回到 `build/core/config.mk`，会`include $(TARGET_DEVCIE)/BoardConfig.mk`
  {{{
      board_config_mk := \
        $(strip $(wildcard \
