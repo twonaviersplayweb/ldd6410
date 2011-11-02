@@ -75,7 +75,7 @@
     PRODUCT_MAKEFILES := \
       $(LOCAL_DIR)/<first_product_name>.mk
  }}}     
-  * 2、<first_product_name>.mk
+  * 2、`<first_product_name>.mk`
     在`<first_product_name>.mk`中一般包括如下配置：
 {{{
     $(call inherit-product, &(SRC_TARGET_DIR)/product/languages_full.mk)
